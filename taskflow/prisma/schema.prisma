@@ -1,0 +1,51 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// On définit une énumération pour les rôles possibles
+enum Role {
+  MANAGER
+  EMPLOYEE
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String
+  role      Role     @default(EMPLOYEE)
+  isActive  Boolean  @default(true) 
+  tasks     Task[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// On définit une énumération pour le statut des tâches
+enum TaskStatus {
+  TODO
+  DONE
+}
+
+model Task {
+  id          String     @id @default(cuid())
+  title       String
+  description String? // Le '?' signifie que c'est optionnel
+  deadline    DateTime
+  status      TaskStatus @default(TODO)
+  
+  // Relation: Une tâche est assignée à un utilisateur
+  assignedToId String
+  assignedTo   User   @relation(fields: [assignedToId], references: [id])
+
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+

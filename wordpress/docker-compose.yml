@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  # Service pour la base de données de WordPress
+  db_wordpress:
+    image: mysql:5.7
+    container_name: db_wordpress_taskflow
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: mot_de_passe_wordpress_root 
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpressuser
+      MYSQL_PASSWORD: mot_de_passe_wordpress_user 
+
+  # Service pour WordPress lui-même
+  wordpress:
+    image: wordpress:latest
+    container_name: wordpress_taskflow
+    depends_on:
+      - db_wordpress
+    ports:
+      - "8080:80" # On accède à WordPress via http://localhost:8080
+    restart: always
+    environment:
+      WORDPRESS_DB_HOST: db_wordpress:3306
+      WORDPRESS_DB_USER: wordpressuser
+      WORDPRESS_DB_PASSWORD: mot_de_passe_wordpress_user # Doit correspondre à celui ci-dessus
+      WORDPRESS_DB_NAME: wordpress
+    volumes:
+      - ./wordpress_files:/var/www/html # Lie les fichiers de WordPress à un dossier local
+
+volumes:
+  db_data:
+  wordpress_files:
