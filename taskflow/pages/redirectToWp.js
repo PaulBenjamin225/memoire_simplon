@@ -33,7 +33,7 @@ export default function RedirectToWp() {
 
       } catch (error) {
         console.error("Failed to generate WordPress token:", error);
-        setMessage("Échec de la connexion automatique. Veuillez réessayer.");
+        setMessage("Connexion...");
         // En cas d'échec, on redirige quand même vers WordPress
         setTimeout(() => {
           window.location.href = WORDPRESS_URL;
