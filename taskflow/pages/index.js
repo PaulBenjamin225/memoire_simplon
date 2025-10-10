@@ -82,7 +82,7 @@ export default function HomePage() {
             alt="Aperçu du tableau de bord de TaskFlow"
             width={1000}
             height={600}
-            className="relative rounded-xl border border-cyan-400 shadow-[0_0_40px_10px_rgba(0,255,255,0.3)] transition duration-500"
+            className="relative rounded-xl border border-cyan-400 shadow-[0_0_40px_10px_rgba(0,255,255,0.3)] transition duration-500 mx-auto"
           />
         </div>
 

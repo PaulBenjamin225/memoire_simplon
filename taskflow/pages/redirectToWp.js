@@ -15,7 +15,7 @@ export default function RedirectToWp() {
       const destination = router.query.destination || '/';
 
       if (!taskflowToken) {
-        setMessage("Vous n'êtes pas connecté. Redirection...");
+        setMessage("Redirection...");
         // Redirige vers la page de connexion de WordPress
         window.location.href = `${WORDPRESS_URL}/wp-login.php`;
         return;
