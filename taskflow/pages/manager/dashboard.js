@@ -8,9 +8,11 @@ import EditTaskModal from '../../components/EditTaskModal';
 import AddUserModal from '../../components/AddUserModal';
 import EditUserModal from '../../components/EditUserModal';
 import { 
-  PlusIcon, UserGroupIcon, ListBulletIcon, CheckCircleIcon, FunnelIcon 
+  PlusIcon, UserGroupIcon, ListBulletIcon, CheckCircleIcon, FunnelIcon,
+  Bars3Icon, XMarkIcon // <-- AJOUT 1: Import des icônes pour le menu mobile
 } from '@heroicons/react/24/solid';
 import Head from 'next/head';
+import Link from 'next/link'; // <-- AJOUT 2: Import de Link pour la navigation
 
 // --- Composant StatCard (inchangé) ---
 const StatCard = ({ title, value, icon }) => (
@@ -42,10 +44,11 @@ function ManagerDashboard() {
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
   const [isEditUserModalOpen, setIsEditUserModalOpen] = useState(false);
   const [userToEdit, setUserToEdit] = useState(null);
-  
-  // <-- AJOUT 1: Nouveaux états pour la (dés)activation -->
   const [isDeactivateConfirmOpen, setIsDeactivateConfirmOpen] = useState(false);
   const [userToToggleStatus, setUserToToggleStatus] = useState(null);
+
+  // <-- AJOUT 3: Nouvel état pour gérer le menu mobile -->
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -89,17 +92,14 @@ function ManagerDashboard() {
     }
   };
   
-  // Fonctions de gestion des utilisateurs
+  // Fonctions de gestion des utilisateurs (inchangées)
   const handleUserAdded = (newUser) => { setUsers([newUser, ...users]); };
   const handleEditUserClick = (user) => { setUserToEdit(user); setIsEditUserModalOpen(true); };
   const handleUserUpdated = (updatedUser) => {
     setUsers(users.map(u => (u.id === updatedUser.id ? updatedUser : u)));
-    // Ferme les deux modals de modification d'utilisateur au cas où
     setIsEditUserModalOpen(false);
     setIsDeactivateConfirmOpen(false);
   };
-
-  // <-- AJOUT 2: Fonctions pour gérer la (dés)activation -->
   const handleToggleStatusClick = (user) => {
     setUserToToggleStatus(user);
     setIsDeactivateConfirmOpen(true);
@@ -110,12 +110,11 @@ function ManagerDashboard() {
     try {
       const newStatus = !userToToggleStatus.isActive;
       const response = await axios.patch(`/api/users/${userToToggleStatus.id}`, { isActive: newStatus }, { headers: { Authorization: `Bearer ${token}` } });
-      handleUserUpdated(response.data); // On réutilise la fonction de mise à jour pour rafraîchir la liste et fermer les modals
+      handleUserUpdated(response.data);
     } catch (error) {
       console.error('Failed to toggle user status', error);
       alert("La mise à jour du statut de l'utilisateur a échoué.");
     } finally {
-      // Nettoyage au cas où l'appel API échouerait avant le handleUserUpdated
       setIsDeactivateConfirmOpen(false);
       setUserToToggleStatus(null);
     }
@@ -138,22 +137,23 @@ function ManagerDashboard() {
         <title>Manager Dashboard - TaskFlow</title>
       </Head>
       <div className="min-h-screen bg-slate-900 text-slate-200">
-        <nav className="bg-slate-800/80 backdrop-blur-sm border-b border-slate-700">
+        {/* <-- AJOUT 4: La barre de navigation est maintenant dans une structure responsive --> */}
+        <nav className="bg-slate-800/80 backdrop-blur-sm border-b border-slate-700 sticky top-0 z-50">
           <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
+              {/* Logo */}
               <h1 className="text-xl font-bold">
                 <span className="text-[#2962FF]">Task</span><span className="text-[#4CAF50]">Flow</span> 
                 <span className="font-normal text-slate-400"> / Manager</span>
               </h1>
-              <a 
-                href="/redirectToWp?destination=/" // URL de votre WordPress
-                target="_blank" // Ouvre dans un nouvel onglet
-                rel="noopener noreferrer" 
-                className="text-slate-300 hover:text-cyan-400 mr-6 text-sm font-medium transition-colors"
-              >
-                TaskFlow Hub
-              </a>
-              <div className="flex items-center">
+              
+              {/* Menu pour grands écrans */}
+              <div className="hidden md:flex items-center">
+                <Link href="/redirectToWp?destination=/" passHref>
+                  <a target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:text-cyan-400 mr-6 text-sm font-medium transition-colors">
+                    TaskFlow Hub
+                  </a>
+                </Link>
                 <span className="text-slate-300 mr-4">Bonjour, {user?.name}</span>
                 <button
                   onClick={logout}
@@ -162,8 +162,33 @@ function ManagerDashboard() {
                   Déconnexion
                 </button>
               </div>
+
+              {/* Bouton pour menu mobile */}
+              <div className="md:hidden">
+                <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-slate-300">
+                  {isMenuOpen ? <XMarkIcon className="w-7 h-7" /> : <Bars3Icon className="w-7 h-7" />}
+                </button>
+              </div>
             </div>
           </div>
+
+          {/* Menu mobile dépliant */}
+          {isMenuOpen && (
+            <div className="md:hidden bg-slate-800 pb-4 px-4 space-y-4">
+              <Link href="/redirectToWp?destination=/" passHref>
+                <a target="_blank" rel="noopener noreferrer" className="block text-slate-300 hover:text-cyan-400 text-center py-2">
+                  TaskFlow Hub
+                </a>
+              </Link>
+              <div className="text-slate-300 text-center py-2 border-t border-slate-700">Bonjour, {user?.name}</div>
+              <button
+                onClick={logout}
+                className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+              >
+                Déconnexion
+              </button>
+            </div>
+          )}
         </nav>
 
         <main className="max-w-screen-xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
@@ -264,7 +289,6 @@ function ManagerDashboard() {
                         <td className="px-6 py-4 whitespace-nowrap"><span className={`px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full ${u.role === 'MANAGER' ? 'bg-purple-500/20 text-purple-300' : 'bg-blue-500/20 text-blue-300'}`}>{u.role === 'MANAGER' ? 'Manager' : 'Employé'}</span></td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <button onClick={() => handleEditUserClick(u)} className="text-cyan-400 hover:text-cyan-300">Modifier</button>
-                          {/* <-- AJOUT 4: Logique du bouton de (dés)activation --> */}
                           <button 
                             onClick={() => handleToggleStatusClick(u)} 
                             className={`ml-4 ${u.isActive ? 'text-red-500 hover:text-red-400' : 'text-green-500 hover:text-green-400'}`}
@@ -287,8 +311,6 @@ function ManagerDashboard() {
       <EditTaskModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} onTaskUpdated={handleTaskUpdated} task={taskToEdit} users={users} />
       <AddUserModal isOpen={isAddUserModalOpen} onClose={() => setIsAddUserModalOpen(false)} onUserAdded={handleUserAdded} />
       <EditUserModal isOpen={isEditUserModalOpen} onClose={() => setIsEditUserModalOpen(false)} onUserUpdated={handleUserUpdated} user={userToEdit} />
-
-      {/* <-- AJOUT 5: Modal de confirmation pour la (dés)activation --> */}
       <ConfirmModal
         isOpen={isDeactivateConfirmOpen}
         onClose={() => setIsDeactivateConfirmOpen(false)}

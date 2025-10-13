@@ -19,7 +19,7 @@ export default async function handler(req, res) {
   // ✅ Étape 1 : Vérifier la méthode HTTP
   // On n'autorise que les requêtes POST (connexion via email/mot de passe)
   if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Method not allowed' }); // 405 = méthode non autorisée
+    return res.status(405).json({ message: 'Méthode non autorisée' }); // 405 = méthode non autorisée
   }
 
   // ✅ Étape 2 : Récupérer les données envoyées dans le corps de la requête
@@ -27,7 +27,7 @@ export default async function handler(req, res) {
 
   // ✅ Étape 3 : Vérifier que les champs obligatoires sont bien présents
   if (!email || !password) {
-    return res.status(400).json({ message: 'Email and password are required' }); // 400 = mauvaise requête
+    return res.status(400).json({ message: 'Email et mot de passe sont requis' }); // 400 = mauvaise requête
   }
 
   try {
@@ -37,7 +37,7 @@ export default async function handler(req, res) {
 
     // Si aucun utilisateur n’est trouvé, renvoyer une erreur d’identifiants invalides
     if (!user) {
-      return res.status(401).json({ message: 'Invalid credentials' }); // 401 = non autorisé
+      return res.status(401).json({ message: 'Aucun utilisateur trouvé' }); // 401 = non autorisé
     }
 
     // ✅ Étape 5 : Vérifier que le mot de passe est correct
@@ -46,14 +46,14 @@ export default async function handler(req, res) {
 
     if (!isPasswordValid) {
       // Si le mot de passe ne correspond pas, on renvoie une erreur
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ message: 'Mot de passe incorrect' });
     }
 
     // <-- AJOUT : Étape 5.5 - Vérifier si le compte de l'utilisateur est actif -->
     // Si la propriété `isActive` de l'utilisateur est `false`, on bloque la connexion.
     if (!user.isActive) {
       // 403 = Interdit (Forbidden). L'utilisateur est authentifié mais n'a pas la permission de se connecter.
-      return res.status(403).json({ message: 'Your account has been deactivated. Please contact an administrator.' });
+      return res.status(403).json({ message: 'Votre compte a été désactivé. Veuillez contacter un administrateur.' });
     }
 
     // ✅ Étape 6 : Créer le token JWT si l’utilisateur est authentifié
