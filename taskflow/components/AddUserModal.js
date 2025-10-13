@@ -1,43 +1,51 @@
-import { useState } from 'react';
-import axios from 'axios';
-import { XMarkIcon } from '@heroicons/react/24/solid';
+import { useState } from 'react'; // Import du hook useState pour gérer l'état local du composant
+import axios from 'axios'; // Import de la bibliothèque axios pour les requêtes HTTP
+import { XMarkIcon } from '@heroicons/react/24/solid'; // Import d'une icône de fermeture
 
 export default function AddUserModal({ isOpen, onClose, onUserAdded }) {
+  // États pour stocker les valeurs saisies et les erreurs
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
+  // Si le modal n'est pas ouvert, ne rien rendre
   if (!isOpen) return null;
 
+  // Fonction pour gérer la soumission du formulaire
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
+    e.preventDefault(); // Empêche le rechargement de la page
+    setError(''); // Réinitialise les erreurs
 
+    // Vérifie que tous les champs sont remplis
     if (!name || !email || !password) {
       setError('Tous les champs sont requis.');
       return;
     }
 
+    // Récupération du token d'authentification stocké dans le navigateur
     const token = localStorage.getItem('token');
     try {
-      const response = await axios.post('/api/users', 
-        { name, email, password },
-        { headers: { Authorization: `Bearer ${token}` } }
+      // Envoi de la requête POST à l'API pour ajouter un utilisateur
+      const response = await axios.post('/api/users', // URL de l'endpoint backend
+        { name, email, password }, // Données envoyées
+        { headers: { Authorization: `Bearer ${token}` } } // En-têtes avec le token
       );
 
       onUserAdded(response.data); // Informe le parent qu'un utilisateur a été ajouté
       onClose(); // Ferme le modal
 
-      // Réinitialise les champs
+      // Réinitialise les champs après ajout
       setName('');
       setEmail('');
       setPassword('');
     } catch (err) {
+      // Capture et affichage du message d'erreur
       setError(err.response?.data?.message || 'Une erreur est survenue.');
     }
   };
 
+  // Rendu du composant (interface utilisateur du modal)
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
       <div className="bg-slate-800 p-8 rounded-2xl shadow-xl w-full max-w-md border border-slate-700">

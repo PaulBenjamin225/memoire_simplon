@@ -1,9 +1,13 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { XMarkIcon } from '@heroicons/react/24/solid';
+import { useState, useEffect } from 'react'; // Import du hook React pour gérer les états internes
+import axios from 'axios'; // Import de la bibliothèque axios pour effectuer des requêtes HTTP
+import { XMarkIcon } from '@heroicons/react/24/solid'; // Import de l’icône de fermeture (croix)
 
+// Composant modal pour modifier un utilisateur
 export default function EditUserModal({ isOpen, onClose, onUserUpdated, user }) {
+
+  // État local pour stocker les valeurs du formulaire
   const [formData, setFormData] = useState({ name: '', email: '', role: '' });
+  // État pour afficher un éventuel message d'erreur
   const [error, setError] = useState('');
 
   // Pré-remplit le formulaire quand un utilisateur est sélectionné
@@ -15,32 +19,38 @@ export default function EditUserModal({ isOpen, onClose, onUserUpdated, user }) 
         role: user.role,
       });
     }
-  }, [user]);
+  }, [user]); // Déclenché à chaque fois que `user` est mis à jour
 
+  // Si le modal est fermé, on ne rend rien dans le DOM
   if (!isOpen) return null;
 
+  // Gère la saisie de l'utilisateur dans chaque champ du formulaire
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  // Soumission du formulaire : envoie la mise à jour au serveur
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
+    e.preventDefault(); // Empêche le rechargement de la page
+    setError(''); // Réinitialise l'erreur avant chaque tentative
 
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token'); // Récupère le jeton d'authentification
     try {
-      const response = await axios.patch(`/api/users/${user.id}`, formData, {
+      // Requête PATCH pour mettre à jour les informations utilisateur
+      const response = await axios.patch(`/api/users/${user.id}`, formData, { 
         headers: { Authorization: `Bearer ${token}` }
       });
-      onUserUpdated(response.data); // Informe le parent
+      onUserUpdated(response.data); // Informe le parent que la mise à jour est faite
       onClose(); // Ferme le modal
     } catch (err) {
+      // Capture et affiche le message d'erreur renvoyé par le serveur
       setError(err.response?.data?.message || 'Une erreur est survenue.');
     }
   };
 
   return (
+    // Arrière-plan flou du modal
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
       <div className="bg-slate-800 p-8 rounded-2xl shadow-xl w-full max-w-md border border-slate-700">
         <div className="flex justify-between items-center mb-6">

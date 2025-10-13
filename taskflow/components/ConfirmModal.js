@@ -1,10 +1,12 @@
-import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import { ExclamationTriangleIcon } from '@heroicons/react/24/outline'; // Import de l'icône d'avertissement
 
+// Composant ConfirmModal : fenêtre modale de confirmation
 export default function ConfirmModal({ isOpen, onClose, onConfirm, title, message }) {
   if (!isOpen) return null;
 
+  // Si le modal n'est pas ouvert, on ne rend rien
   return (
-    // Fond semi-transparent
+    // Fond sombre semi-transparent qui recouvre tout l'écran
     <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
       {/* Conteneur du modal */}
       <div className="bg-slate-800 p-8 rounded-2xl shadow-xl w-full max-w-md border border-slate-700">

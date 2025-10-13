@@ -5,9 +5,9 @@ import AuthContext from '../context/AuthContext';
 import Head from 'next/head';
 import { 
   ListBulletIcon, CheckCircleIcon, ExclamationTriangleIcon,
-  Bars3Icon, XMarkIcon // <-- AJOUT 1: Import des icônes pour le menu
+  Bars3Icon, XMarkIcon
 } from '@heroicons/react/24/solid';
-import Link from 'next/link'; // <-- AJOUT 2: Import de Link pour la navigation
+import Link from 'next/link';
 
 // --- Composant StatCard (style du dashboard manager) ---
 const StatCard = ({ title, value, icon }) => (
@@ -22,9 +22,14 @@ const StatCard = ({ title, value, icon }) => (
   </div>
 );
 
-// --- Composant pour afficher une seule tâche (design mis à jour) ---
+// --- Composant pour afficher une seule tâche (design mis à jour avec "Voir plus") ---
 const TaskItem = ({ task, onStatusChange }) => {
+    // AJOUT 1: Nouvel état pour gérer l'expansion de la description
+    const [isExpanded, setIsExpanded] = useState(false);
+    const CHAR_LIMIT = 100; // Limite de caractères
+
     const isOverdue = new Date(task.deadline) < new Date() && task.status !== 'DONE';
+    const needsTruncation = task.description && task.description.length > CHAR_LIMIT;
 
     const handleCheckboxChange = () => {
         const newStatus = task.status === 'DONE' ? 'TODO' : 'DONE';
@@ -32,20 +37,30 @@ const TaskItem = ({ task, onStatusChange }) => {
     };
 
     return (
-        <div className={`bg-slate-800 p-4 rounded-lg flex items-center justify-between border-l-4 transition-all duration-300 hover:bg-slate-700 ${isOverdue ? 'border-red-500' : 'border-slate-700'}`}>
-            <div className="flex items-center min-w-0"> {/* Ajout de min-w-0 pour le wrapping du texte */}
+        <div className={`bg-slate-800 p-4 rounded-lg flex items-start justify-between border-l-4 transition-all duration-300 ${isOverdue ? 'border-red-500' : 'border-slate-700'}`}>
+            <div className="flex items-start min-w-0">
                 <input
                     type="checkbox"
                     checked={task.status === 'DONE'}
                     onChange={handleCheckboxChange}
-                    className="h-6 w-6 rounded border-slate-600 bg-slate-700 text-cyan-500 focus:ring-cyan-500 cursor-pointer flex-shrink-0" // Ajout de flex-shrink-0
+                    className="h-6 w-6 rounded border-slate-600 bg-slate-700 text-cyan-500 focus:ring-cyan-500 cursor-pointer flex-shrink-0 mt-1"
                 />
-                <div className="ml-4 min-w-0"> {/* Ajout de min-w-0 */}
-                    <p className={`font-semibold truncate ${task.status === 'DONE' ? 'line-through text-slate-500' : 'text-white'}`}>{task.title}</p>
-                    {task.description && <p className="text-sm text-slate-400 truncate">{task.description}</p>}
+                <div className="ml-4 min-w-0">
+                    <p className={`font-semibold ${task.status === 'DONE' ? 'line-through text-slate-500' : 'text-white'}`}>{task.title}</p>
+                    {/* AJOUT 2: Logique d'affichage de la description */}
+                    {task.description && (
+                      <div className="text-sm text-slate-400">
+                        {isExpanded || !needsTruncation ? task.description : `${task.description.substring(0, CHAR_LIMIT)}...`}
+                        {needsTruncation && (
+                          <button onClick={() => setIsExpanded(!isExpanded)} className="text-cyan-400 hover:text-cyan-300 text-xs ml-2 font-bold whitespace-nowrap">
+                            {isExpanded ? 'Voir moins' : 'Voir plus'}
+                          </button>
+                        )}
+                      </div>
+                    )}
                 </div>
             </div>
-            <div className="flex flex-col items-end text-sm ml-4"> {/* Ajout de ml-4 */}
+            <div className="flex flex-col items-end text-sm ml-4">
                 <span className={`font-semibold whitespace-nowrap ${isOverdue ? 'text-red-400' : 'text-slate-300'}`}>
                     {new Date(task.deadline).toLocaleDateString('fr-FR')}
                 </span>
@@ -59,8 +74,6 @@ function EmployeeDashboard() {
   const { user, logout } = useContext(AuthContext);
   const [tasks, setTasks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  // <-- AJOUT 3: Nouvel état pour le menu mobile -->
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -110,7 +123,6 @@ function EmployeeDashboard() {
         <title>Mes Tâches - TaskFlow</title>
       </Head>
       <div className="min-h-screen bg-slate-900 text-slate-200">
-        {/* <-- AJOUT 4: La barre de navigation est maintenant responsive --> */}
         <nav className="bg-slate-800/80 backdrop-blur-sm border-b border-slate-700 sticky top-0 z-50">
           <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
@@ -119,7 +131,6 @@ function EmployeeDashboard() {
                 <span className="font-normal text-slate-400"> / Espace Employé</span>
               </h1>
 
-              {/* Menu pour grands écrans */}
               <div className="hidden md:flex items-center">
                 <Link href="/redirectToWp?destination=/" passHref>
                   <a target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:text-cyan-400 mr-6 text-sm font-medium transition-colors">
@@ -135,7 +146,6 @@ function EmployeeDashboard() {
                 </button>
               </div>
 
-              {/* Bouton pour menu mobile */}
               <div className="md:hidden">
                 <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-slate-300">
                   {isMenuOpen ? <XMarkIcon className="w-7 h-7" /> : <Bars3Icon className="w-7 h-7" />}
@@ -144,7 +154,6 @@ function EmployeeDashboard() {
             </div>
           </div>
 
-          {/* Menu mobile dépliant */}
           {isMenuOpen && (
             <div className="md:hidden bg-slate-800 pb-4 px-4 space-y-4">
               <Link href="/redirectToWp?destination=/" passHref>
@@ -164,14 +173,12 @@ function EmployeeDashboard() {
         </nav>
 
         <main className="max-w-screen-xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-          {/* Section des cartes de statistiques pour l'employé */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <StatCard title="Tâches à faire" value={tasksTodo.length} icon={<ListBulletIcon className="w-6 h-6 text-cyan-400"/>} />
             <StatCard title="Tâches terminées" value={tasksDone.length} icon={<CheckCircleIcon className="w-6 h-6 text-cyan-400"/>} />
             <StatCard title="Tâches en retard" value={overdueTasks.length} icon={<ExclamationTriangleIcon className="w-6 h-6 text-red-400"/>} />
           </div>
           
-          {/* Section des tâches à faire */}
           <div className="mb-10">
             <h2 className="text-2xl font-semibold text-white mb-4">Mes Tâches à faire</h2>
             <div className="space-y-4">
@@ -187,7 +194,6 @@ function EmployeeDashboard() {
             </div>
           </div>
 
-          {/* Section des tâches terminées */}
           <div>
             <h2 className="text-2xl font-semibold text-white mb-4">Tâches terminées</h2>
             <div className="space-y-4">

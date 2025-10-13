@@ -1,44 +1,45 @@
-import { createContext, useState, useEffect } from 'react';
-import axios from 'axios';
-import { useRouter } from 'next/router';
-// CORRECTION 1: Changer l'importation
-import { jwtDecode } from 'jwt-decode';
+import { createContext, useState, useEffect } from 'react'; // createContext pour créer un contexte global, useState pour gérer l'état, useEffect pour exécuter du code après le rendu
+import axios from 'axios'; // Axios pour faire des requêtes HTTP vers l'API backend
+import { useRouter } from 'next/router'; // useRouter de Next.js pour gérer les redirections côté client
+import { jwtDecode } from 'jwt-decode';  // jwtDecode pour décoder le token JWT et lire les informations de l'utilisateur sans faire de requête au serveur
 
+// Création du contexte d'authentification
 const AuthContext = createContext();
 
+// Fournisseur AuthProvider pour envelopper l'application et partager les données d'authentification
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
+  const [user, setUser] = useState(null); // Stocke les infos de l'utilisateur connecté
+  const [loading, setLoading] = useState(true); // Indique si l'état d'authentification est en cours de chargement
+  const router = useRouter(); // Hook pour naviguer/faire des redirections côté client
 
+  // Vérification automatique du token JWT au chargement
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token'); // Récupère le token stocké localement
     if (token) {
       try {
-        // CORRECTION 2: Utiliser jwtDecode (camelCase)
-        const decoded = jwtDecode(token);
-        // Vérifier si le token n'est pas expiré
-        if (Date.now() >= decoded.exp * 1000) {
+        const decoded = jwtDecode(token); // Décode le token pour obtenir les infos utilisateur
+        if (Date.now() >= decoded.exp * 1000) { // Vérifier si le token n'est pas expiré
             console.log("Token is expired, removing.");
             localStorage.removeItem('token');
         } else {
-            setUser({ ...decoded });
+            setUser({ ...decoded }); // Si valide, on restaure l'utilisateur
         }
       } catch (error) {
-        console.error("Invalid token:", error);
+        console.error("Invalid token:", error); // Token corrompu
         localStorage.removeItem('token');
       }
     }
-    setLoading(false);
+    setLoading(false); // Fin de la vérification initiale
   }, []);
 
+  // Fonction de connexion
   const login = async (email, password) => {
     try {
       const res = await axios.post('/api/auth/login', { email, password });
       const { token } = res.data;
-      localStorage.setItem('token', token);
+      localStorage.setItem('token', token); // Sauvegarde du token côté client
       
-      // CORRECTION 3: Utiliser jwtDecode (camelCase)
+      
       const decoded = jwtDecode(token);
       setUser({ ...decoded });
 
@@ -49,11 +50,12 @@ export const AuthProvider = ({ children }) => {
         router.push('/dashboard');
       }
     } catch (error) {
+      // Gestion détaillée des erreurs selon leur origine
       if (error.response) {
-        console.error('Login failed with server response:', error.response.data);
+        console.error('La connexion a échoué avec la réponse du serveur:', error.response.data);
         alert(error.response.data.message || "Échec de la connexion.");
       } else if (error.request) {
-        console.error('No response received:', error.request);
+        console.error('Aucune réponse reçue:', error.request);
         alert("Le serveur ne répond pas. Vérifiez que le serveur de développement est bien lancé (npm run dev).");
       } else {
         console.error('Error setting up request:', error.message);
@@ -62,12 +64,14 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Déconnexion
   const logout = () => {
-    localStorage.removeItem('token');
-    setUser(null);
-    router.push('/login');
+    localStorage.removeItem('token'); // Supprime le token
+    setUser(null); // Réinitialise l'état utilisateur
+    router.push('/login'); // Redirige vers la page de connexion
   };
 
+  // Fournit les données et fonctions d'authentification à l'ensemble de l'application
   return (
     <AuthContext.Provider value={{ user, loading, login, logout }}>
       {children}

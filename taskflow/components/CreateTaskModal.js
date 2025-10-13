@@ -1,54 +1,61 @@
-import { useState } from 'react';
-import axios from 'axios';
-import { XMarkIcon } from '@heroicons/react/24/solid';
+import { useState } from 'react'; // Import du hook React pour gérer les états internes
+import axios from 'axios'; // Import de la bibliothèque axios pour effectuer des requêtes HTTP
+import { XMarkIcon } from '@heroicons/react/24/solid'; // Import de l’icône de fermeture (croix)
 
+// Composant CreateTaskModal : modal permettant de créer une nouvelle tâche
 export default function CreateTaskModal({ isOpen, onClose, onTaskCreated, users }) {
   // Etats pour chaque champ du formulaire
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [deadline, setDeadline] = useState('');
-  const [assignedToId, setAssignedToId] = useState('');
-  const [error, setError] = useState('');
+  const [title, setTitle] = useState(''); // Titre de la tâche
+  const [description, setDescription] = useState(''); // Description de la tâche
+  const [deadline, setDeadline] = useState(''); // Date limite
+  const [assignedToId, setAssignedToId] = useState(''); // ID de l'utilisateur assigné
+  const [error, setError] = useState(''); // Message d'erreur
 
   // Si le modal n'est pas ouvert, on n'affiche rien
   if (!isOpen) return null;
 
+  // Fonction appelée lors de la soumission du formulaire
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
+    e.preventDefault(); // Empêche le rechargement de la page
+    setError(''); // Réinitialise le message d'erreur
 
-    // Validation simple
+    // Vérifie que les champs obligatoires sont remplis
     if (!title || !deadline || !assignedToId) {
       setError('Veuillez remplir tous les champs obligatoires.');
       return;
     }
 
+    // Récupération du token d'authentification depuis le localStorage
     const token = localStorage.getItem('token');
     try {
-      const response = await axios.post('/api/tasks', {
+      // Envoi de la requête POST pour créer une nouvelle tâche
+      const response = await axios.post('/api/tasks', { // Données envoyées
         title,
         description,
         deadline,
         assignedToId,
       }, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` } // En-tête d'authentification
       });
 
-      // Appelle la fonction du parent pour mettre à jour la liste
-      onTaskCreated(response.data);
+      
+      onTaskCreated(response.data); // Informe le composant parent qu'une tâche a été créée
+      
       // Réinitialise le formulaire et ferme le modal
       onClose();
       setTitle('');
       setDescription('');
       setDeadline('');
       setAssignedToId('');
+
+      // Capture et affichage d'une erreur (message du serveur ou défaut)
     } catch (err) {
       setError(err.response?.data?.message || 'Une erreur est survenue.');
     }
   };
 
   return (
-    // Fond semi-transparent
+    // Fond noir semi-transparent couvrant toute la page
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
       {/* Conteneur du modal */}
       <div className="bg-slate-800 p-8 rounded-2xl shadow-xl w-full max-w-lg border border-slate-700">

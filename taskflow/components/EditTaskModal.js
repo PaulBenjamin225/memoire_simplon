@@ -1,18 +1,21 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { XMarkIcon } from '@heroicons/react/24/solid';
+import { useState, useEffect } from 'react'; // Import du hook React pour gérer les états internes
+import axios from 'axios'; // Import de la bibliothèque axios pour effectuer des requêtes HTTP
+import { XMarkIcon } from '@heroicons/react/24/solid'; // Import de l’icône de fermeture (croix)
 
-// Le modal reçoit la tâche à modifier ('task') en props
+// Le composant modal pour modifier une tâche
 export default function EditTaskModal({ isOpen, onClose, onTaskUpdated, task, users }) {
+  // État local pour stocker les données du formulaire
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     deadline: '',
     assignedToId: '',
   });
+
+  // État pour afficher un message d’erreur éventuel
   const [error, setError] = useState('');
 
-  // Ce `useEffect` est crucial: il pré-remplit le formulaire quand le modal s'ouvre
+  // Pré-remplit les champs du formulaire quand le modal s’ouvre ou quand `task` change
   useEffect(() => {
     if (task) {
       setFormData({
@@ -25,19 +28,23 @@ export default function EditTaskModal({ isOpen, onClose, onTaskUpdated, task, us
     }
   }, [task]); // Se déclenche chaque fois que la `task` change
 
+  // Si le modal n’est pas ouvert, on ne rend rien
   if (!isOpen) return null;
 
+  // Gère la saisie de l’utilisateur dans les champs du formulaire
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  // Envoi des données mises à jour vers le backend
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Empêche le rechargement de la page
     setError('');
 
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token'); // Récupération du token pour l’authentification
     try {
+      // Requête PATCH pour mettre à jour la tâche
       const response = await axios.patch(`/api/tasks/${task.id}`, formData, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -49,6 +56,7 @@ export default function EditTaskModal({ isOpen, onClose, onTaskUpdated, task, us
   };
 
   return (
+    // Arrière-plan flou et sombre du modal
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
       <div className="bg-slate-800 p-8 rounded-2xl shadow-xl w-full max-w-lg border border-slate-700">
         <div className="flex justify-between items-center mb-6">

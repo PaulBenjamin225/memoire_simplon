@@ -9,10 +9,46 @@ import AddUserModal from '../../components/AddUserModal';
 import EditUserModal from '../../components/EditUserModal';
 import { 
   PlusIcon, UserGroupIcon, ListBulletIcon, CheckCircleIcon, FunnelIcon,
-  Bars3Icon, XMarkIcon // <-- AJOUT 1: Import des icônes pour le menu mobile
+  Bars3Icon, XMarkIcon
 } from '@heroicons/react/24/solid';
 import Head from 'next/head';
-import Link from 'next/link'; // <-- AJOUT 2: Import de Link pour la navigation
+import Link from 'next/link';
+
+// --- AJOUT 1: Nouveau composant pour une ligne de tâche avec la logique "Voir plus" ---
+const TaskRow = ({ task, onEdit, onDelete }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const CHAR_LIMIT = 100; // Limite de caractères avant de tronquer
+  const needsTruncation = task.description && task.description.length > CHAR_LIMIT;
+
+  return (
+    <tr className="hover:bg-slate-800 transition-colors">
+      <td className="px-6 py-4 align-top">
+        <div className="text-sm font-semibold text-white">{task.title}</div>
+        {task.description && (
+          <div className="text-sm text-slate-400 max-w-xs">
+            {isExpanded || !needsTruncation ? task.description : `${task.description.substring(0, CHAR_LIMIT)}...`}
+            {needsTruncation && (
+              <button onClick={() => setIsExpanded(!isExpanded)} className="text-cyan-400 hover:text-cyan-300 text-xs ml-2 font-bold whitespace-nowrap">
+                {isExpanded ? 'Voir moins' : 'Voir plus'}
+              </button>
+            )}
+          </div>
+        )}
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap align-top text-sm text-slate-300">{task.assignedTo.name}</td>
+      <td className="px-6 py-4 whitespace-nowrap align-top text-sm text-slate-300">{new Date(task.deadline).toLocaleDateString('fr-FR')}</td>
+      <td className="px-6 py-4 whitespace-nowrap align-top">
+        <span className={`px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full ${task.status === 'DONE' ? 'bg-green-500/20 text-green-300' : 'bg-yellow-500/20 text-yellow-300'}`}>
+          {task.status === 'DONE' ? 'Terminé' : 'À faire'}
+        </span>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap align-top text-sm font-medium">
+        <button onClick={onEdit} className="text-cyan-400 hover:text-cyan-300">Modifier</button>
+        <button onClick={onDelete} className="text-red-500 hover:text-red-400 ml-4">Supprimer</button>
+      </td>
+    </tr>
+  );
+};
 
 // --- Composant StatCard (inchangé) ---
 const StatCard = ({ title, value, icon }) => (
@@ -46,8 +82,6 @@ function ManagerDashboard() {
   const [userToEdit, setUserToEdit] = useState(null);
   const [isDeactivateConfirmOpen, setIsDeactivateConfirmOpen] = useState(false);
   const [userToToggleStatus, setUserToToggleStatus] = useState(null);
-
-  // <-- AJOUT 3: Nouvel état pour gérer le menu mobile -->
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -137,17 +171,13 @@ function ManagerDashboard() {
         <title>Manager Dashboard - TaskFlow</title>
       </Head>
       <div className="min-h-screen bg-slate-900 text-slate-200">
-        {/* <-- AJOUT 4: La barre de navigation est maintenant dans une structure responsive --> */}
         <nav className="bg-slate-800/80 backdrop-blur-sm border-b border-slate-700 sticky top-0 z-50">
           <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
-              {/* Logo */}
               <h1 className="text-xl font-bold">
                 <span className="text-[#2962FF]">Task</span><span className="text-[#4CAF50]">Flow</span> 
                 <span className="font-normal text-slate-400"> / Manager</span>
               </h1>
-              
-              {/* Menu pour grands écrans */}
               <div className="hidden md:flex items-center">
                 <Link href="/redirectToWp?destination=/" passHref>
                   <a target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:text-cyan-400 mr-6 text-sm font-medium transition-colors">
@@ -162,8 +192,6 @@ function ManagerDashboard() {
                   Déconnexion
                 </button>
               </div>
-
-              {/* Bouton pour menu mobile */}
               <div className="md:hidden">
                 <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-slate-300">
                   {isMenuOpen ? <XMarkIcon className="w-7 h-7" /> : <Bars3Icon className="w-7 h-7" />}
@@ -171,8 +199,6 @@ function ManagerDashboard() {
               </div>
             </div>
           </div>
-
-          {/* Menu mobile dépliant */}
           {isMenuOpen && (
             <div className="md:hidden bg-slate-800 pb-4 px-4 space-y-4">
               <Link href="/redirectToWp?destination=/" passHref>
@@ -242,16 +268,13 @@ function ManagerDashboard() {
                   <tbody className="divide-y divide-slate-700">
                     {isLoading ? (<tr><td colSpan="5" className="text-center py-8 text-slate-500">Chargement...</td></tr>) 
                     : filteredTasks.length > 0 ? filteredTasks.map((task) => (
-                        <tr key={task.id} className="hover:bg-slate-800 transition-colors">
-                          <td className="px-6 py-4 whitespace-nowrap"><div className="text-sm font-semibold text-white">{task.title}</div>{task.description && <div className="text-sm text-slate-400 truncate max-w-xs">{task.description}</div>}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{task.assignedTo.name}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{new Date(task.deadline).toLocaleDateString('fr-FR')}</td>
-                          <td className="px-6 py-4 whitespace-nowrap"><span className={`px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full ${task.status === 'DONE' ? 'bg-green-500/20 text-green-300' : 'bg-yellow-500/20 text-yellow-300'}`}>{task.status === 'DONE' ? 'Terminé' : 'À faire'}</span></td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button onClick={() => handleEditClick(task)} className="text-cyan-400 hover:text-cyan-300">Modifier</button>
-                            <button onClick={() => handleDeleteClick(task.id)} className="text-red-500 hover:text-red-400 ml-4">Supprimer</button>
-                          </td>
-                        </tr>
+                        // <-- AJOUT 2: Utilisation du nouveau composant TaskRow -->
+                        <TaskRow
+                          key={task.id}
+                          task={task}
+                          onEdit={() => handleEditClick(task)}
+                          onDelete={() => handleDeleteClick(task.id)}
+                        />
                       )) : (
                         <tr><td colSpan="5" className="text-center py-8 text-slate-500">Aucune tâche ne correspond à votre filtre.</td></tr>
                       )}
