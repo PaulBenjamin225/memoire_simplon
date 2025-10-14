@@ -14,7 +14,7 @@ import {
 // Composant Next.js pour créer des liens internes
 import Link from 'next/link';
 
-// --- Composant StatCard (style du dashboard manager) ---
+// --- Composant StatCard ---
 const StatCard = ({ title, value, icon }) => (
   <div className="bg-slate-800 p-6 rounded-2xl border border-slate-700 flex items-center space-x-4">
     <div className="bg-slate-700 p-3 rounded-xl">
@@ -30,8 +30,7 @@ const StatCard = ({ title, value, icon }) => (
 // --- Composant pour afficher une seule tâche "Voir plus" ---
 const TaskItem = ({ task, onStatusChange }) => {
     const [isExpanded, setIsExpanded] = useState(false);
-    const CHAR_LIMIT = 100; // Limite de caractères
-
+    const CHAR_LIMIT = 100;
     const isOverdue = new Date(task.deadline) < new Date() && task.status !== 'DONE';
     const needsTruncation = task.description && task.description.length > CHAR_LIMIT;
 
@@ -50,12 +49,15 @@ const TaskItem = ({ task, onStatusChange }) => {
                     className="h-6 w-6 rounded border-slate-600 bg-slate-700 text-cyan-500 focus:ring-cyan-500 cursor-pointer flex-shrink-0 mt-1"
                 />
                 <div className="ml-4 min-w-0">
-                    <p className={`font-semibold ${task.status === 'DONE' ? 'line-through text-slate-500' : 'text-white'}`}>{task.title}</p>
+                    <p className={`font-semibold text-white ${task.status === 'DONE' ? 'line-through text-slate-500' : ''}`}>{task.title}</p>
                     {task.description && (
-                      <div className="text-sm text-slate-400">
-                        {isExpanded || !needsTruncation ? task.description : `${task.description.substring(0, CHAR_LIMIT)}...`}
+                      <div className="text-sm text-slate-400 mt-1">
+                        {/* La classe 'whitespace-normal' garantit que le texte passera à la ligne */}
+                        <p className="whitespace-normal">
+                          {isExpanded ? task.description : `${task.description.substring(0, CHAR_LIMIT)}${needsTruncation ? '...' : ''}`}
+                        </p>
                         {needsTruncation && (
-                          <button onClick={() => setIsExpanded(!isExpanded)} className="text-cyan-400 hover:text-cyan-300 text-xs ml-2 font-bold whitespace-nowrap">
+                          <button onClick={() => setIsExpanded(!isExpanded)} className="text-cyan-400 hover:text-cyan-300 text-xs font-bold mt-1">
                             {isExpanded ? 'Voir moins' : 'Voir plus'}
                           </button>
                         )}
@@ -63,7 +65,7 @@ const TaskItem = ({ task, onStatusChange }) => {
                     )}
                 </div>
             </div>
-            <div className="flex flex-col items-end text-sm ml-4">
+            <div className="flex flex-col items-end text-sm ml-4 flex-shrink-0">
                 <span className={`font-semibold whitespace-nowrap ${isOverdue ? 'text-red-400' : 'text-slate-300'}`}>
                     {new Date(task.deadline).toLocaleDateString('fr-FR')}
                 </span>

@@ -25,7 +25,7 @@ import Link from 'next/link'; // Pour créer des liens internes ou externes avec
 // Composant pour afficher une ligne de tâche dans le tableau
 const TaskRow = ({ task, onEdit, onDelete }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const CHAR_LIMIT = 100; // Limite de caractères avant de tronquer
+  const CHAR_LIMIT = 100;
   const needsTruncation = task.description && task.description.length > CHAR_LIMIT;
 
   return (
@@ -33,10 +33,12 @@ const TaskRow = ({ task, onEdit, onDelete }) => {
       <td className="px-6 py-4 align-top">
         <div className="text-sm font-semibold text-white">{task.title}</div>
         {task.description && (
-          <div className="text-sm text-slate-400 max-w-xs">
-            {isExpanded || !needsTruncation ? task.description : `${task.description.substring(0, CHAR_LIMIT)}...`}
+          <div className="text-sm text-slate-400 max-w-xs mt-1">
+            <p className="whitespace-normal">
+              {isExpanded ? task.description : `${task.description.substring(0, CHAR_LIMIT)}${needsTruncation ? '...' : ''}`}
+            </p>
             {needsTruncation && (
-              <button onClick={() => setIsExpanded(!isExpanded)} className="text-cyan-400 hover:text-cyan-300 text-xs ml-2 font-bold whitespace-nowrap">
+              <button onClick={() => setIsExpanded(!isExpanded)} className="text-cyan-400 hover:text-cyan-300 text-xs font-bold mt-1">
                 {isExpanded ? 'Voir moins' : 'Voir plus'}
               </button>
             )}
