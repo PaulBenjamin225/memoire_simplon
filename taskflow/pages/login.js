@@ -1,19 +1,30 @@
+// useState : pour gérer les champs du formulaire (email, mot de passe)
+// useContext : pour accéder aux fonctions globales du contexte d’authentification
 import { useState, useContext } from 'react';
+// Importation du contexte d’authentification (permet d’utiliser la fonction login)
 import AuthContext from '../context/AuthContext';
+// Importation du composant Image de Next.js pour des images optimisées
 import Image from 'next/image';
+// Importation du composant Link de Next.js pour les liens internes
 import Link from 'next/link';
+// Importation d’icônes Heroicons pour embellir le formulaire
 import { EnvelopeIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 
+// --- COMPOSANT PRINCIPAL : Page de connexion ---
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  // États pour stocker la saisie de l'utilisateur
+  const [email, setEmail] = useState(''); // Contient l’adresse email saisie
+  const [password, setPassword] = useState(''); // Contient le mot de passe saisi
+  // Récupération de la fonction "login" depuis le contexte AuthContext
   const { login } = useContext(AuthContext);
 
+  // Fonction déclenchée lors de la soumission du formulaire
   const handleSubmit = (e) => {
-    e.preventDefault();
-    login(email, password);
+    e.preventDefault(); // Empêche le rechargement de la page
+    login(email, password); // Appelle la fonction de connexion avec les infos saisies
   };
 
+  // --- STRUCTURE VISUELLE DE LA PAGE ---
   return (
     // L'arrière-plan est maintenant un dégradé, plus une image.
     <div className="min-h-screen w-full flex items-center justify-center p-4 

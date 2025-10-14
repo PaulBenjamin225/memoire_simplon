@@ -1,20 +1,28 @@
-import { useState, useEffect, useContext } from 'react';
-import axios from 'axios';
-import PrivateRoute from '../../components/PrivateRoute';
-import AuthContext from '../../context/AuthContext';
+import { useState, useEffect, useContext } from 'react'; // import de createContext pour créer un contexte global, useState pour gérer l'état, useEffect pour exécuter du code après le rendu
+import axios from 'axios'; // import de Axios pour faire des requêtes HTTP vers l'API backend
+import PrivateRoute from '../../components/PrivateRoute'; // Protège la page pour certains rôles
+import AuthContext from '../../context/AuthContext'; // Pour récupérer l'utilisateur connecté et la fonction logout
+// Modals pour créer, éditer et confirmer des actions sur les tâches
 import CreateTaskModal from '../../components/CreateTaskModal';
 import ConfirmModal from '../../components/ConfirmModal';
 import EditTaskModal from '../../components/EditTaskModal';
+// Modals pour ajouter et éditer les utilisateurs
 import AddUserModal from '../../components/AddUserModal';
 import EditUserModal from '../../components/EditUserModal';
+// Icônes de Heroicons utilisées dans le dashboard (boutons, filtres, navigation)
 import { 
-  PlusIcon, UserGroupIcon, ListBulletIcon, CheckCircleIcon, FunnelIcon,
-  Bars3Icon, XMarkIcon
+  PlusIcon,        // Pour le bouton "Ajouter"
+  UserGroupIcon,   // Pour la statistique "Nombre d'employés"
+  ListBulletIcon,  // Pour la statistique "Tâches totales"
+  CheckCircleIcon, // Pour la statistique "Tâches terminées"
+  FunnelIcon,      // Pour l'icône du filtre de tâches
+  Bars3Icon,       // Pour le menu hamburger sur mobile
+  XMarkIcon        // Pour le bouton fermer menu mobile
 } from '@heroicons/react/24/solid';
-import Head from 'next/head';
-import Link from 'next/link';
+import Head from 'next/head'; // Pour définir le titre de la page dans l'onglet du navigateur
+import Link from 'next/link'; // Pour créer des liens internes ou externes avec Next.js
 
-// --- AJOUT 1: Nouveau composant pour une ligne de tâche avec la logique "Voir plus" ---
+// Composant pour afficher une ligne de tâche dans le tableau
 const TaskRow = ({ task, onEdit, onDelete }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const CHAR_LIMIT = 100; // Limite de caractères avant de tronquer
@@ -50,7 +58,7 @@ const TaskRow = ({ task, onEdit, onDelete }) => {
   );
 };
 
-// --- Composant StatCard (inchangé) ---
+// Composant pour afficher une carte statistique
 const StatCard = ({ title, value, icon }) => (
   <div className="bg-slate-800 p-6 rounded-2xl border border-slate-700 flex items-center space-x-4">
     <div className="bg-slate-700 p-3 rounded-xl">
@@ -64,26 +72,27 @@ const StatCard = ({ title, value, icon }) => (
 );
 
 function ManagerDashboard() {
-  const { user, logout } = useContext(AuthContext);
-  const [tasks, setTasks] = useState([]);
-  const [users, setUsers] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { user, logout } = useContext(AuthContext); // Récupère l'utilisateur et la fonction logout
+  const [tasks, setTasks] = useState([]);  // Liste des tâches
+  const [users, setUsers] = useState([]); // Liste des utilisateurs
+  const [isLoading, setIsLoading] = useState(true); // Indique si les données sont en cours de chargement
   
-  // États pour les modals (existants)
+  // États pour les modals
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [taskToEdit, setTaskToEdit] = useState(null);
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [activeTab, setActiveTab] = useState('tasks');
+  const [statusFilter, setStatusFilter] = useState('all'); // Filtre par statut des tâches
+  const [activeTab, setActiveTab] = useState('tasks'); // Onglet actif : 'tasks' ou 'users' 
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
   const [isEditUserModalOpen, setIsEditUserModalOpen] = useState(false);
   const [userToEdit, setUserToEdit] = useState(null);
   const [isDeactivateConfirmOpen, setIsDeactivateConfirmOpen] = useState(false);
   const [userToToggleStatus, setUserToToggleStatus] = useState(null);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false); // Menu mobile
 
+// --- Récupère les tâches et utilisateurs au chargement ---
   useEffect(() => {
     const fetchData = async () => {
       const token = localStorage.getItem('token');
@@ -97,7 +106,7 @@ function ManagerDashboard() {
         setTasks(tasksResponse.data);
         setUsers(usersResponse.data);
       } catch (error) {
-        console.error('Failed to fetch manager data', error);
+        console.error('Échec de la récupération des données du manager', error);
         if (error.response?.status === 401 || error.response?.status === 403) logout();
       } finally {
         setIsLoading(false);
@@ -106,19 +115,19 @@ function ManagerDashboard() {
     fetchData();
   }, [logout]);
 
-  // Fonctions de gestion des tâches (inchangées)
-  const handleTaskCreated = (newTask) => { setTasks([newTask, ...tasks]); };
-  const handleEditClick = (task) => { setTaskToEdit(task); setIsEditModalOpen(true); };
-  const handleTaskUpdated = (updatedTask) => { setTasks(tasks.map(t => (t.id === updatedTask.id ? updatedTask : t))); setIsEditModalOpen(false); };
-  const handleDeleteClick = (taskId) => { setTaskToDelete(taskId); setIsConfirmModalOpen(true); };
-  const confirmDeletion = async () => {
+  // Fonctions de gestion des tâches
+  const handleTaskCreated = (newTask) => { setTasks([newTask, ...tasks]); }; // Ajoute une nouvelle tâche
+  const handleEditClick = (task) => { setTaskToEdit(task); setIsEditModalOpen(true); }; // Ouvre modal édition
+  const handleTaskUpdated = (updatedTask) => { setTasks(tasks.map(t => (t.id === updatedTask.id ? updatedTask : t))); setIsEditModalOpen(false); }; // Met à jour la tâche
+  const handleDeleteClick = (taskId) => { setTaskToDelete(taskId); setIsConfirmModalOpen(true); }; // Ouvre modal confirmation suppression
+  const confirmDeletion = async () => { // Supprime la tâche
     if (!taskToDelete) return;
     const token = localStorage.getItem('token');
     try {
       await axios.delete(`/api/tasks/${taskToDelete}`, { headers: { Authorization: `Bearer ${token}` } });
       setTasks(tasks.filter(task => task.id !== taskToDelete));
     } catch (error) {
-      console.error('Failed to delete task', error);
+      console.error('Échec de la suppression de la tâche', error);
       alert("La suppression de la tâche a échoué. Veuillez réessayer.");
     } finally {
       setIsConfirmModalOpen(false);
@@ -126,7 +135,7 @@ function ManagerDashboard() {
     }
   };
   
-  // Fonctions de gestion des utilisateurs (inchangées)
+  // Fonctions de gestion des utilisateurs
   const handleUserAdded = (newUser) => { setUsers([newUser, ...users]); };
   const handleEditUserClick = (user) => { setUserToEdit(user); setIsEditUserModalOpen(true); };
   const handleUserUpdated = (updatedUser) => {
@@ -138,7 +147,7 @@ function ManagerDashboard() {
     setUserToToggleStatus(user);
     setIsDeactivateConfirmOpen(true);
   };
-  const confirmToggleStatus = async () => {
+  const confirmToggleStatus = async () => { // Active ou désactive un utilisateur
     if (!userToToggleStatus) return;
     const token = localStorage.getItem('token');
     try {
@@ -146,7 +155,7 @@ function ManagerDashboard() {
       const response = await axios.patch(`/api/users/${userToToggleStatus.id}`, { isActive: newStatus }, { headers: { Authorization: `Bearer ${token}` } });
       handleUserUpdated(response.data);
     } catch (error) {
-      console.error('Failed to toggle user status', error);
+      console.error('Échec de basculer le statut utilisateur', error);
       alert("La mise à jour du statut de l'utilisateur a échoué.");
     } finally {
       setIsDeactivateConfirmOpen(false);
@@ -154,13 +163,13 @@ function ManagerDashboard() {
     }
   };
 
-  // Logique de filtrage des tâches (inchangée)
+  // Logique de filtrage des tâches
   const filteredTasks = tasks.filter(task => {
     if (statusFilter === 'all') { return true; }
     return task.status === statusFilter;
   });
 
-  // Statistiques (inchangées)
+  // Statistiques
   const totalTasks = tasks.length;
   const completedTasks = tasks.filter(t => t.status === 'DONE').length;
   const totalEmployees = users.filter(u => u.role === 'EMPLOYEE').length;
@@ -268,7 +277,6 @@ function ManagerDashboard() {
                   <tbody className="divide-y divide-slate-700">
                     {isLoading ? (<tr><td colSpan="5" className="text-center py-8 text-slate-500">Chargement...</td></tr>) 
                     : filteredTasks.length > 0 ? filteredTasks.map((task) => (
-                        // <-- AJOUT 2: Utilisation du nouveau composant TaskRow -->
                         <TaskRow
                           key={task.id}
                           task={task}
@@ -316,7 +324,7 @@ function ManagerDashboard() {
                             onClick={() => handleToggleStatusClick(u)} 
                             className={`ml-4 ${u.isActive ? 'text-red-500 hover:text-red-400' : 'text-green-500 hover:text-green-400'}`}
                           >
-                            {u.isActive ? 'Désactiver' : 'Réactiver'}
+                            {u.isActive ? 'Désactiver' : 'Activer'}
                           </button>
                         </td>
                       </tr>
@@ -338,8 +346,8 @@ function ManagerDashboard() {
         isOpen={isDeactivateConfirmOpen}
         onClose={() => setIsDeactivateConfirmOpen(false)}
         onConfirm={confirmToggleStatus}
-        title={`${userToToggleStatus?.isActive ? 'Désactiver' : 'Réactiver'} le compte`}
-        message={`Êtes-vous sûr de vouloir ${userToToggleStatus?.isActive ? 'désactiver' : 'réactiver'} le compte de ${userToToggleStatus?.name} ?`}
+        title={`${userToToggleStatus?.isActive ? 'Désactiver' : 'Activer'} le compte`}
+        message={`Êtes-vous sûr de vouloir ${userToToggleStatus?.isActive ? 'Désactiver' : 'Activer'} le compte de ${userToToggleStatus?.name} ?`}
       />
     </PrivateRoute>
   );

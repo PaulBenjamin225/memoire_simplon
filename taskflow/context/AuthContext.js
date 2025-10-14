@@ -1,5 +1,5 @@
-import { createContext, useState, useEffect } from 'react'; // createContext pour créer un contexte global, useState pour gérer l'état, useEffect pour exécuter du code après le rendu
-import axios from 'axios'; // Axios pour faire des requêtes HTTP vers l'API backend
+import { createContext, useState, useEffect } from 'react'; // import de createContext pour créer un contexte global, useState pour gérer l'état, useEffect pour exécuter du code après le rendu
+import axios from 'axios'; // import de Axios pour faire des requêtes HTTP vers l'API backend
 import { useRouter } from 'next/router'; // useRouter de Next.js pour gérer les redirections côté client
 import { jwtDecode } from 'jwt-decode';  // jwtDecode pour décoder le token JWT et lire les informations de l'utilisateur sans faire de requête au serveur
 

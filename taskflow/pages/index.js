@@ -1,12 +1,27 @@
-import Link from 'next/link';
-import Image from 'next/image';
+import Link from 'next/link'; // Permet de créer des liens internes entre les pages sans rechargement complet (spécifique à Next.js)
+import Image from 'next/image'; // Permet d'afficher des images optimisées (chargement adaptatif et responsive)
+
+// Importation d’icônes provenant de la librairie Heroicons (version outline)
 import { 
-  ArrowRightIcon, Bars3Icon, XMarkIcon, 
-  ListBulletIcon, ChartBarIcon, UsersIcon, BellIcon, ChatBubbleBottomCenterTextIcon, DevicePhoneMobileIcon, EnvelopeIcon
+  ArrowRightIcon,          // Flèche utilisée dans les boutons d'action
+  Bars3Icon,               // Icône "menu burger" pour ouvrir le menu mobile
+  XMarkIcon,               // Icône de fermeture du menu mobile
+  ListBulletIcon,          // Icône représentant des listes de tâches
+  ChartBarIcon,            // Icône pour illustrer les statistiques ou graphiques
+  UsersIcon,               // Icône pour la gestion des utilisateurs
+  BellIcon,                // Icône pour les notifications
+  ChatBubbleBottomCenterTextIcon, // Icône pour la messagerie ou les commentaires
+  DevicePhoneMobileIcon,   // Icône pour symboliser l’accès mobile
+  EnvelopeIcon             // Icône d’enveloppe utilisée dans la section contact
+  
+// Importation du hook useState de React
+// Il permet de gérer l’état local du composant (par exemple ici, l’ouverture ou fermeture du menu mobile)
 } from '@heroicons/react/24/outline';
 import { useState } from 'react';
 
+// --- COMPOSANT PRINCIPAL DE LA PAGE D’ACCUEIL ---
 export default function HomePage() {
+  // État local pour savoir si le menu mobile est ouvert ou fermé
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
@@ -236,7 +251,7 @@ export default function HomePage() {
       {/* --- Pied de page (Footer) --- */}
       <footer className="border-t border-slate-800">
         <div className="container mx-auto px-6 py-8 text-center text-slate-400">
-          <p>&copy; {new Date().getFullYear()} <span className="text-[#00B0FF]">Task</span><span className="text-[#8BC34A]">Flow</span>. Tous droits réservés.</p>
+          <p>&copy; © {new Date().getFullYear()} <span className="text-[#00B0FF]">Task</span><span className="text-[#8BC34A]">Flow</span>. Tous droits réservés.</p>
         </div>
       </footer>
     </div>

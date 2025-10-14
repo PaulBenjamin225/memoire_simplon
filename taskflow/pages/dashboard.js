@@ -1,12 +1,17 @@
-import { useState, useEffect, useContext } from 'react';
-import axios from 'axios';
-import PrivateRoute from '../components/PrivateRoute';
-import AuthContext from '../context/AuthContext';
-import Head from 'next/head';
+import { useState, useEffect, useContext } from 'react'; // import de createContext pour créer un contexte global, useState pour gérer l'état, useEffect pour exécuter du code après le rendu
+import axios from 'axios'; // import de Axios pour faire des requêtes HTTP vers l'API backend
+import PrivateRoute from '../components/PrivateRoute'; // Protège la page pour certains rôles
+import AuthContext from '../context/AuthContext'; // Pour récupérer l'utilisateur connecté et la fonction logout
+import Head from 'next/head'; // Composant Next.js pour gérer le <head> de la page (titre, meta, etc.)
+// Icônes Heroicons utilisées dans le dashboard
 import { 
-  ListBulletIcon, CheckCircleIcon, ExclamationTriangleIcon,
-  Bars3Icon, XMarkIcon
+  ListBulletIcon, 
+  CheckCircleIcon, 
+  ExclamationTriangleIcon, 
+  Bars3Icon, 
+  XMarkIcon
 } from '@heroicons/react/24/solid';
+// Composant Next.js pour créer des liens internes
 import Link from 'next/link';
 
 // --- Composant StatCard (style du dashboard manager) ---
@@ -22,9 +27,8 @@ const StatCard = ({ title, value, icon }) => (
   </div>
 );
 
-// --- Composant pour afficher une seule tâche (design mis à jour avec "Voir plus") ---
+// --- Composant pour afficher une seule tâche "Voir plus" ---
 const TaskItem = ({ task, onStatusChange }) => {
-    // AJOUT 1: Nouvel état pour gérer l'expansion de la description
     const [isExpanded, setIsExpanded] = useState(false);
     const CHAR_LIMIT = 100; // Limite de caractères
 
@@ -47,7 +51,6 @@ const TaskItem = ({ task, onStatusChange }) => {
                 />
                 <div className="ml-4 min-w-0">
                     <p className={`font-semibold ${task.status === 'DONE' ? 'line-through text-slate-500' : 'text-white'}`}>{task.title}</p>
-                    {/* AJOUT 2: Logique d'affichage de la description */}
                     {task.description && (
                       <div className="text-sm text-slate-400">
                         {isExpanded || !needsTruncation ? task.description : `${task.description.substring(0, CHAR_LIMIT)}...`}
@@ -70,12 +73,14 @@ const TaskItem = ({ task, onStatusChange }) => {
     );
 };
 
+// Dashboard principal pour un employé
 function EmployeeDashboard() {
-  const { user, logout } = useContext(AuthContext);
-  const [tasks, setTasks] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, logout } = useContext(AuthContext); // Récupère l'utilisateur connecté et logout
+  const [tasks, setTasks] = useState([]); // Liste des tâches
+  const [isLoading, setIsLoading] = useState(true); // État de chargement
+  const [isMenuOpen, setIsMenuOpen] = useState(false); // Menu mobile
 
+  // --- Fetch des tâches de l'utilisateur au chargement ---
   useEffect(() => {
     const fetchTasks = async () => {
       setIsLoading(true);
@@ -87,7 +92,7 @@ function EmployeeDashboard() {
         });
         setTasks(res.data);
       } catch (error) {
-        console.error('Failed to fetch tasks', error);
+        console.error('Échec de la récupération des tâches', error);
         if (error.response?.status === 401) logout();
       } finally {
         setIsLoading(false);
@@ -96,6 +101,7 @@ function EmployeeDashboard() {
     fetchTasks();
   }, [logout]);
 
+  // --- Mise à jour du statut d'une tâche ---
   const handleUpdateTaskStatus = async (taskId, newStatus) => {
     const token = localStorage.getItem('token');
     const originalTasks = [...tasks];
@@ -106,13 +112,13 @@ function EmployeeDashboard() {
     try {
       await axios.patch(`/api/tasks/${taskId}`, { status: newStatus }, { headers: { Authorization: `Bearer ${token}` } });
     } catch (error) {
-      console.error('Failed to update task status', error);
+      console.error('Échec de la mise à jour du statut de la tâche', error);
       setTasks(originalTasks);
       alert("La mise à jour de la tâche a échoué.");
     }
   };
 
-  // Séparation des tâches et calcul des stats (inchangé)
+  // Séparation des tâches et calcul des stats
   const tasksTodo = tasks.filter(t => t.status === 'TODO');
   const tasksDone = tasks.filter(t => t.status === 'DONE');
   const overdueTasks = tasksTodo.filter(t => new Date(t.deadline) < new Date());

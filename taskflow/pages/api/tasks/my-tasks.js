@@ -1,11 +1,10 @@
-import { PrismaClient } from '@prisma/client'; // PrismaClient : pour interagir avec la base de données via Prisma ORM
-import jwt from 'jsonwebtoken'; // jsonwebtoken (jwt) : pour vérifier et décoder le token d’authentification
+import { PrismaClient } from '@prisma/client'; // import de PrismaClient : pour interagir avec la base de données via Prisma ORM
+import jwt from 'jsonwebtoken'; // import de jsonwebtoken (jwt) : pour vérifier et décoder le token d’authentification
 
 // --- Initialisation de Prisma ---
 const prisma = new PrismaClient();
 
 // Clé secrète utilisée pour signer et vérifier les tokens JWT
-// Doit être identique à celle utilisée lors de la génération du token dans login.js
 const JWT_SECRET = process.env.JWT_SECRET;
 
 // --- Route API principale ---
@@ -21,7 +20,7 @@ export default async function handler(req, res) {
 // On attend un en-tête "Authorization" du type "Bearer <token>"
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ message: 'Authorization token not found' });
+    return res.status(401).json({ message: 'Token d’autorisation non trouvé' });
   }
 
   // Extraction du token depuis l’en-tête
@@ -49,6 +48,6 @@ export default async function handler(req, res) {
   } catch (error) {
     // --- Gestion des erreurs ---
     // Si le token est invalide ou expiré, on renvoie une erreur 401
-    res.status(401).json({ message: 'Invalid or expired token' });
+    res.status(401).json({ message: 'Token invalide ou expiré' });
   }
 }
