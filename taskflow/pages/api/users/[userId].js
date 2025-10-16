@@ -1,49 +1,42 @@
 import { PrismaClient } from '@prisma/client'; // import de PrismaClient : permet d’interagir avec la base de données (ORM).
 import jwt from 'jsonwebtoken'; // import de jsonwebtoken : permet de vérifier et décoder les tokens JWT pour l’authentification.
 
-// --- Initialisation du client Prisma ---
-const prisma = new PrismaClient();
-// --- Récupération de la clé secrète utilisée pour signer et vérifier les tokens JWT ---
-const JWT_SECRET = process.env.JWT_SECRET;
+const prisma = new PrismaClient(); // Initialisation du client Prisma
+const JWT_SECRET = process.env.JWT_SECRET; // Récupération de la clé secrète utilisée pour signer et vérifier les tokens JWT
 
 // --- Définition du gestionnaire principal de la route API ---
 // Cette route permet à un MANAGER de mettre à jour les informations d’un utilisateur (nom, email, rôle, ou statut actif)
 export default async function handler(req, res) {
+
   // --- Étape 1 : Récupération de l'ID utilisateur depuis la requête ---
-  // L’ID est transmis dans l’URL sous forme de paramètre de requête : /api/users/[userId]
-  const { userId } = req.query; 
+  const { userId } = req.query; // L’ID est transmis dans l’URL sous forme de paramètre de requête : /api/users/[userId]
 
 // --- Étape 2 : Vérification du token JWT (authentification + autorisation) ---
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ message: 'Non authentifié' });
+  const authHeader = req.headers.authorization; // Récupération du token JWT depuis l’en-tête Authorization
+  if (!authHeader || !authHeader.startsWith('Bearer ')) { // Si l’en-tête est absent ou mal formaté
+    return res.status(401).json({ message: 'Non authentifié' }); // → accès refusé
   }
 
   // Si aucun token n’est présent ou mal formaté → accès refusé
   const token = authHeader.split(' ')[1];
   try {
-    // Vérification du token avec la clé secrète
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, JWT_SECRET); // Vérification du token avec la clé secrète
     // On s’assure que seul un utilisateur avec le rôle MANAGER peut effectuer cette opération
     if (decoded.role !== 'MANAGER') {
-      return res.status(403).json({ message: 'Interdit : Vous n’êtes pas autorisé à modifier les utilisateurs.' });
+      return res.status(403).json({ message: 'Interdit : Vous n’êtes pas autorisé à modifier les utilisateurs.' }); // Accès refusé
     }
   } catch (error) {
-    // Si le token est invalide ou expiré
-    return res.status(401).json({ message: 'Token invalide ou expiré' });
+    return res.status(401).json({ message: 'Token invalide ou expiré' }); // Si le token est invalide ou expiré
   }
 
   // --- Étape 3 : Autoriser uniquement la méthode PATCH ---
   if (req.method === 'PATCH') {
-    // On récupère les champs envoyés dans le corps de la requête
-    const { name, email, role, isActive } = req.body;
-
-    // Création d’un objet dynamique contenant uniquement les champs à mettre à jour
-    const dataToUpdate = {};
+    const { name, email, role, isActive } = req.body; // On récupère les champs envoyés dans le corps de la requête
+    const dataToUpdate = {}; // Création d’un objet dynamique contenant uniquement les champs à mettre à jour
     // Mise à jour conditionnelle des champs selon ce qui a été envoyé
-    if (name) dataToUpdate.name = name;
-    if (email) dataToUpdate.email = email;
-    if (role) dataToUpdate.role = role;
+    if (name) dataToUpdate.name = name; // On ajoute le champ name s’il est présent
+    if (email) dataToUpdate.email = email; // On ajoute le champ email s’il est présent
+    if (role) dataToUpdate.role = role; // On ajoute le champ role s’il est présent
     
     // Cas particulier : isActive peut être `false`, donc on vérifie `!== undefined`
     if (isActive !== undefined) {

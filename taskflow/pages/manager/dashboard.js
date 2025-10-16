@@ -23,10 +23,10 @@ import Head from 'next/head'; // Pour définir le titre de la page dans l'onglet
 import Link from 'next/link'; // Pour créer des liens internes ou externes avec Next.js
 
 // Composant pour afficher une ligne de tâche dans le tableau
-const TaskRow = ({ task, onEdit, onDelete }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const CHAR_LIMIT = 100;
-  const needsTruncation = task.description && task.description.length > CHAR_LIMIT;
+const TaskRow = ({ task, onEdit, onDelete }) => { 
+  const [isExpanded, setIsExpanded] = useState(false); // État pour gérer l'affichage complet ou tronqué de la description
+  const CHAR_LIMIT = 100; // Limite de caractères avant de tronquer la description
+  const needsTruncation = task.description && task.description.length > CHAR_LIMIT; // Vérifie si la description doit être tronquée
 
   return (
     <tr className="hover:bg-slate-800 transition-colors">
@@ -80,42 +80,42 @@ function ManagerDashboard() {
   const [isLoading, setIsLoading] = useState(true); // Indique si les données sont en cours de chargement
   
   // États pour les modals
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  const [taskToDelete, setTaskToDelete] = useState(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [taskToEdit, setTaskToEdit] = useState(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false); // Modal création de tâche
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false); // Modal confirmation de suppression
+  const [taskToDelete, setTaskToDelete] = useState(null); // Tâche sélectionnée pour la suppression
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false); // Modal édition de tâche
+  const [taskToEdit, setTaskToEdit] = useState(null); // Tâche sélectionnée pour l'édition
   const [statusFilter, setStatusFilter] = useState('all'); // Filtre par statut des tâches
   const [activeTab, setActiveTab] = useState('tasks'); // Onglet actif : 'tasks' ou 'users' 
-  const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
-  const [isEditUserModalOpen, setIsEditUserModalOpen] = useState(false);
-  const [userToEdit, setUserToEdit] = useState(null);
-  const [isDeactivateConfirmOpen, setIsDeactivateConfirmOpen] = useState(false);
-  const [userToToggleStatus, setUserToToggleStatus] = useState(null);
+  const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false); // Modal ajout d'utilisateur
+  const [isEditUserModalOpen, setIsEditUserModalOpen] = useState(false); // Modal édition d'utilisateur
+  const [userToEdit, setUserToEdit] = useState(null); // Utilisateur sélectionné pour l'édition
+  const [isDeactivateConfirmOpen, setIsDeactivateConfirmOpen] = useState(false); // Modal confirmation désactivation utilisateur
+  const [userToToggleStatus, setUserToToggleStatus] = useState(null); // Utilisateur sélectionné pour activer/désactiver
   const [isMenuOpen, setIsMenuOpen] = useState(false); // Menu mobile
 
 // --- Récupère les tâches et utilisateurs au chargement ---
   useEffect(() => {
     const fetchData = async () => {
-      const token = localStorage.getItem('token');
-      if (!token) { logout(); return; }
-      const headers = { Authorization: `Bearer ${token}` };
+      const token = localStorage.getItem('token'); // Récupère le token JWT depuis le stockage local
+      if (!token) { logout(); return; } // Si pas de token, déconnecte l'utilisateur
+      const headers = { Authorization: `Bearer ${token}` }; 
       try {
-        const [tasksResponse, usersResponse] = await Promise.all([
-          axios.get('/api/tasks/all', { headers }),
-          axios.get('/api/users/all', { headers }),
+        const [tasksResponse, usersResponse] = await Promise.all([ // Récupère les tâches et utilisateurs en parallèle
+          axios.get('/api/tasks/all', { headers }), // Toutes les tâches pour le manager
+          axios.get('/api/users/all', { headers }), // Tous les utilisateurs
         ]);
-        setTasks(tasksResponse.data);
-        setUsers(usersResponse.data);
+        setTasks(tasksResponse.data); // Met à jour les états avec les données reçues
+        setUsers(usersResponse.data); // Met à jour les états avec les données reçues
       } catch (error) {
         console.error('Échec de la récupération des données du manager', error);
-        if (error.response?.status === 401 || error.response?.status === 403) logout();
+        if (error.response?.status === 401 || error.response?.status === 403) logout(); // Si non autorisé, déconnecte l'utilisateur
       } finally {
-        setIsLoading(false);
+        setIsLoading(false); // Termine le chargement
       }
     };
-    fetchData();
-  }, [logout]);
+    fetchData(); // Appelle la fonction de récupération des données
+  }, [logout]); // Ne dépend que de logout
 
   // Fonctions de gestion des tâches
   const handleTaskCreated = (newTask) => { setTasks([newTask, ...tasks]); }; // Ajoute une nouvelle tâche
@@ -124,13 +124,13 @@ function ManagerDashboard() {
   const handleDeleteClick = (taskId) => { setTaskToDelete(taskId); setIsConfirmModalOpen(true); }; // Ouvre modal confirmation suppression
   const confirmDeletion = async () => { // Supprime la tâche
     if (!taskToDelete) return;
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token'); // Récupère le token JWT depuis le stockage local
     try {
-      await axios.delete(`/api/tasks/${taskToDelete}`, { headers: { Authorization: `Bearer ${token}` } });
-      setTasks(tasks.filter(task => task.id !== taskToDelete));
+      await axios.delete(`/api/tasks/${taskToDelete}`, { headers: { Authorization: `Bearer ${token}` } }); // On envoie une requête DELETE
+      setTasks(tasks.filter(task => task.id !== taskToDelete)); // Met à jour la liste des tâches en retirant la tâche supprimée
     } catch (error) {
-      console.error('Échec de la suppression de la tâche', error);
-      alert("La suppression de la tâche a échoué. Veuillez réessayer.");
+      console.error('Échec de la suppression de la tâche', error); 
+      alert("La suppression de la tâche a échoué. Veuillez réessayer."); // Affiche une alerte en cas d'erreur
     } finally {
       setIsConfirmModalOpen(false);
       setTaskToDelete(null);
@@ -138,44 +138,45 @@ function ManagerDashboard() {
   };
   
   // Fonctions de gestion des utilisateurs
-  const handleUserAdded = (newUser) => { setUsers([newUser, ...users]); };
-  const handleEditUserClick = (user) => { setUserToEdit(user); setIsEditUserModalOpen(true); };
-  const handleUserUpdated = (updatedUser) => {
-    setUsers(users.map(u => (u.id === updatedUser.id ? updatedUser : u)));
-    setIsEditUserModalOpen(false);
-    setIsDeactivateConfirmOpen(false);
+  const handleUserAdded = (newUser) => { setUsers([newUser, ...users]); }; // Ajoute un nouvel utilisateur
+  const handleEditUserClick = (user) => { setUserToEdit(user); setIsEditUserModalOpen(true); }; // Ouvre modal édition utilisateur
+  const handleUserUpdated = (updatedUser) => { // Met à jour l'utilisateur
+    setUsers(users.map(u => (u.id === updatedUser.id ? updatedUser : u))); // Met à jour la liste des utilisateurs
+    setIsEditUserModalOpen(false); // Ferme la modal
+    setIsDeactivateConfirmOpen(false); // Ferme la modal de confirmation si elle est ouverte
   };
-  const handleToggleStatusClick = (user) => {
-    setUserToToggleStatus(user);
-    setIsDeactivateConfirmOpen(true);
+  const handleToggleStatusClick = (user) => { // Ouvre la modal de confirmation pour activer/désactiver un utilisateur
+    setUserToToggleStatus(user); // Définit l'utilisateur sélectionné
+    setIsDeactivateConfirmOpen(true); // Ouvre la modal de confirmation
   };
   const confirmToggleStatus = async () => { // Active ou désactive un utilisateur
-    if (!userToToggleStatus) return;
-    const token = localStorage.getItem('token');
+    if (!userToToggleStatus) return; // Si aucun utilisateur sélectionné, ne fait rien
+    const token = localStorage.getItem('token'); // Récupère le token JWT depuis le stockage local
     try {
-      const newStatus = !userToToggleStatus.isActive;
-      const response = await axios.patch(`/api/users/${userToToggleStatus.id}`, { isActive: newStatus }, { headers: { Authorization: `Bearer ${token}` } });
-      handleUserUpdated(response.data);
+      const newStatus = !userToToggleStatus.isActive; // Inverse le statut actuel
+      const response = await axios.patch(`/api/users/${userToToggleStatus.id}`, { isActive: newStatus }, { headers: { Authorization: `Bearer ${token}` } }); // Envoie une requête PATCH pour mettre à jour le statut
+      handleUserUpdated(response.data); // Met à jour l'utilisateur dans la liste
     } catch (error) {
-      console.error('Échec de basculer le statut utilisateur', error);
-      alert("La mise à jour du statut de l'utilisateur a échoué.");
+      console.error('Échec de basculer le statut utilisateur', error); 
+      alert("La mise à jour du statut de l'utilisateur a échoué."); // Affiche une alerte en cas d'erreur
     } finally {
-      setIsDeactivateConfirmOpen(false);
-      setUserToToggleStatus(null);
+      setIsDeactivateConfirmOpen(false); // Ferme la modal de confirmation
+      setUserToToggleStatus(null); // Réinitialise l'utilisateur sélectionné
     }
   };
 
   // Logique de filtrage des tâches
-  const filteredTasks = tasks.filter(task => {
-    if (statusFilter === 'all') { return true; }
-    return task.status === statusFilter;
+  const filteredTasks = tasks.filter(task => { // Filtre les tâches selon le statut sélectionné
+    if (statusFilter === 'all') { return true; } // Si "tous", retourne toutes les tâches
+    return task.status === statusFilter; // Sinon, retourne les tâches correspondant au statut sélectionné
   });
 
   // Statistiques
   const totalTasks = tasks.length;
-  const completedTasks = tasks.filter(t => t.status === 'DONE').length;
-  const totalEmployees = users.filter(u => u.role === 'EMPLOYEE').length;
+  const completedTasks = tasks.filter(t => t.status === 'DONE').length; // Nombre de tâches terminées
+  const totalEmployees = users.filter(u => u.role === 'EMPLOYEE').length; // Nombre d'employés
   
+  // Rendu du composant
   return (
     <PrivateRoute allowedRoles={['MANAGER']}>
       <Head>

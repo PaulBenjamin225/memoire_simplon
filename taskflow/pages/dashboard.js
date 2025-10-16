@@ -3,6 +3,7 @@ import axios from 'axios'; // import de Axios pour faire des requêtes HTTP vers
 import PrivateRoute from '../components/PrivateRoute'; // Protège la page pour certains rôles
 import AuthContext from '../context/AuthContext'; // Pour récupérer l'utilisateur connecté et la fonction logout
 import Head from 'next/head'; // Composant Next.js pour gérer le <head> de la page (titre, meta, etc.)
+import Link from 'next/link'; // Composant Next.js pour créer des liens internes
 // Icônes Heroicons utilisées dans le dashboard
 import { 
   ListBulletIcon, 
@@ -11,8 +12,7 @@ import {
   Bars3Icon, 
   XMarkIcon
 } from '@heroicons/react/24/solid';
-// Composant Next.js pour créer des liens internes
-import Link from 'next/link';
+
 
 // --- Composant StatCard ---
 const StatCard = ({ title, value, icon }) => (
@@ -27,16 +27,17 @@ const StatCard = ({ title, value, icon }) => (
   </div>
 );
 
-// --- Composant pour afficher une seule tâche "Voir plus" ---
-const TaskItem = ({ task, onStatusChange }) => {
-    const [isExpanded, setIsExpanded] = useState(false);
-    const CHAR_LIMIT = 100;
-    const isOverdue = new Date(task.deadline) < new Date() && task.status !== 'DONE';
-    const needsTruncation = task.description && task.description.length > CHAR_LIMIT;
+// --- Composant pour afficher afficher une tâche individuelle avec "Voir plus" ---
+const TaskItem = ({ task, onStatusChange }) => { // onStatusChange est une fonction passée en prop pour mettre à jour le statut de la tâche
+    const [isExpanded, setIsExpanded] = useState(false); // État pour gérer l'expansion de la description
+    const CHAR_LIMIT = 100; // Limite de caractères avant de tronquer la description
+    const isOverdue = new Date(task.deadline) < new Date() && task.status !== 'DONE'; // Vérifie si la tâche est en retard
+    const needsTruncation = task.description && task.description.length > CHAR_LIMIT; // Vérifie si la description doit être tronquée
 
-    const handleCheckboxChange = () => {
-        const newStatus = task.status === 'DONE' ? 'TODO' : 'DONE';
-        onStatusChange(task.id, newStatus);
+    // Gère le changement de statut de la tâche
+    const handleCheckboxChange = () => { 
+        const newStatus = task.status === 'DONE' ? 'TODO' : 'DONE'; // Bascule entre 'DONE' et 'TODO'
+        onStatusChange(task.id, newStatus); // Appelle la fonction passée en prop pour mettre à jour le statut
     };
 
     return (
@@ -75,58 +76,63 @@ const TaskItem = ({ task, onStatusChange }) => {
     );
 };
 
-// Dashboard principal pour un employé
+
+// --- Dashboard principal pour un employé ---
 function EmployeeDashboard() {
-  const { user, logout } = useContext(AuthContext); // Récupère l'utilisateur connecté et logout
+  const {user, logout} = useContext(AuthContext); // Récupère l'utilisateur connecté et logout
   const [tasks, setTasks] = useState([]); // Liste des tâches
   const [isLoading, setIsLoading] = useState(true); // État de chargement
   const [isMenuOpen, setIsMenuOpen] = useState(false); // Menu mobile
 
+
   // --- Fetch des tâches de l'utilisateur au chargement ---
   useEffect(() => {
-    const fetchTasks = async () => {
-      setIsLoading(true);
-      const token = localStorage.getItem('token');
+    const fetchTasks = async () => { 
+      setIsLoading(true); // affiche un indicateur de chargement.
+      const token = localStorage.getItem('token'); // Récupére le token JWT depuis localStorage
       if (!token) { logout(); return; }
       try {
-        const res = await axios.get('/api/tasks/my-tasks', {
-          headers: { Authorization: `Bearer ${token}` },
+        const res = await axios.get('/api/tasks/my-tasks', { // Requête Axios GET vers l'API POUR récupèrer uniquement les tâches de l’utilisateur
+          headers: { Authorization: `Bearer ${token}` }, // Ajoute le token dans les en-têtes pour l'authentification
         });
-        setTasks(res.data);
+        setTasks(res.data); // Met à jour l'état avec les tâches récupérées
       } catch (error) {
         console.error('Échec de la récupération des tâches', error);
-        if (error.response?.status === 401) logout();
+        if (error.response?.status === 401) logout(); // Si le token est absent ou expiré, l’utilisateur est déconnecté automatiquement.
       } finally {
-        setIsLoading(false);
+        setIsLoading(false); // Cache l'indicateur de chargement
       }
     };
-    fetchTasks();
-  }, [logout]);
+    fetchTasks(); // Appelle la fonction pour fetch les tâches
+  }, [logout]); // Le tableau de dépendances avec logout garantit que l'effet ne sera réexécuté que si logout change.
+
 
   // --- Mise à jour du statut d'une tâche ---
   const handleUpdateTaskStatus = async (taskId, newStatus) => {
-    const token = localStorage.getItem('token');
-    const originalTasks = [...tasks];
-    const updatedTasks = tasks.map(t =>
-      t.id === taskId ? { ...t, status: newStatus } : t
+    const token = localStorage.getItem('token'); //Récupére le token JWT depuis localStorage pour authentifier la requête
+    const originalTasks = [...tasks]; // Sauvegarde l'état original des tâches pour le rollback en cas d'erreur
+    const updatedTasks = tasks.map(t => // Met à jour localement le statut de la tâche pour une réponse UI immédiate
+      t.id === taskId ? { ...t, status: newStatus } : t // Si l'ID correspond, on met à jour le statut, sinon on garde la tâche inchangée
     );
-    setTasks(updatedTasks);
+    setTasks(updatedTasks); // Met à jour l'état avec les tâches modifiées
     try {
-      await axios.patch(`/api/tasks/${taskId}`, { status: newStatus }, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.patch(`/api/tasks/${taskId}`, { status: newStatus }, { headers: { Authorization: `Bearer ${token}` } }); // Requête PATCH a partir de axios pour mettre à jour le statut de la tâche dans le backend
     } catch (error) {
-      console.error('Échec de la mise à jour du statut de la tâche', error);
+      console.error('Échec de la mise à jour du statut de la tâche', error); // En cas d'erreur, on restaure l'état original des tâches
       setTasks(originalTasks);
       alert("La mise à jour de la tâche a échoué.");
     }
   };
 
-  // Séparation des tâches et calcul des stats
-  const tasksTodo = tasks.filter(t => t.status === 'TODO');
-  const tasksDone = tasks.filter(t => t.status === 'DONE');
-  const overdueTasks = tasksTodo.filter(t => new Date(t.deadline) < new Date());
+  // --- Séparation des tâches et calcul des stats ---
+  const tasksTodo = tasks.filter(t => t.status === 'TODO'); // filter() parcourt le tableau tasks et on garde uniquement les tâches dont le status est "TODO"
+  const tasksDone = tasks.filter(t => t.status === 'DONE'); // filter() parcourt le tableau tasks et on garde uniquement les tâches dont le status est "DONE"
+  const overdueTasks = tasksTodo.filter(t => new Date(t.deadline) < new Date());// On part du tableau tasksTodo (les tâches non terminées), on compare la date limite de chaque tâche (t.deadline) avec la date actuelle (new Date()). Si t.deadline est antérieure à aujourd’hui, c’est une tâche en retard
 
+
+  // --- Rendu du dashboard ---
   return (
-    <PrivateRoute allowedRoles={['EMPLOYEE']}>
+    <PrivateRoute allowedRoles={['EMPLOYEE']}>  {/* Protège la page pour les utilisateurs avec le rôle 'EMPLOYEE' */}
       <Head>
         <title>Mes Tâches - TaskFlow</title>
       </Head>

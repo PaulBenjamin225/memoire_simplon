@@ -4,22 +4,19 @@ import jwt from 'jsonwebtoken'; // import de jsonwebtoken : permet de vérifier 
 
 // Instance de Prisma pour effectuer des requêtes sur la base de données
 const prisma = new PrismaClient();
-// Clé secrète utilisée pour signer et vérifier les tokens JWT
-// Elle doit être la même que celle utilisée lors de la connexion (login.js)
-const JWT_SECRET = process.env.JWT_SECRET;
+
+const JWT_SECRET = process.env.JWT_SECRET; // Clé secrète utilisée pour signer et vérifier les tokens JWT
 
 // Cette route permet à un MANAGER de créer un nouvel utilisateur (par défaut un employé)
 export default async function handler(req, res) {
 
   // --- Étape 1 : Vérifier la méthode HTTP ---
-  // On n’autorise que les requêtes POST
-  if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Méthode non autorisée' });
+  if (req.method !== 'POST') { // On n’autorise que les requêtes POST
+    return res.status(405).json({ message: 'Méthode non autorisée' }); // 405 Method Not Allowed
   }
 
   // --- Étape 2 : Vérifier que l'appelant est un manager ---
-  // On récupère le token JWT depuis l’en-tête de la requête
-  const authHeader = req.headers.authorization;
+  const authHeader = req.headers.authorization; // On récupère le token JWT depuis l’en-tête de la requête
 
   // Si aucun token n’est trouvé, on renvoie une erreur 401 (non authentifié)
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -49,8 +46,7 @@ export default async function handler(req, res) {
   // --- Étape 4 : Création du nouvel utilisateur ---
   try {
     // Hachage du mot de passe avant l’enregistrement
-    // Le "10" représente le facteur de coût pour le salage du hash
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10); // Le "10" représente le facteur de coût pour le salage du hash
 
     // Création du nouvel utilisateur avec le rôle par défaut 'EMPLOYEE'
     const newUser = await prisma.user.create({

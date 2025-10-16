@@ -84,9 +84,9 @@ export default function LoginPage() {
           <Image
           src="/taskflow_connexion.jpg"
           alt="Workspace background"
-          fill // 'layout="fill"' devient simplement 'fill'
-          style={{ objectFit: 'cover' }} // 'objectFit' va dans une prop 'style'
-          sizes="(max-width: 768px) 100vw, 50vw" // Aide Next.js à optimiser l'image
+          fill // l’image remplit entièrement son conteneur
+          style={{ objectFit: 'cover' }} // l’image couvre tout le conteneur sans se déformer
+          sizes="(max-width: 768px) 100vw, 50vw" // Aide Next.js à optimiser l'image en préchargeant la bonne version de l’image
           />
         </div>
       </div>

@@ -4,7 +4,7 @@ import { Html, Head, Main, NextScript } from "next/document";
 // Composant personnalisé pour le document HTML de l'application
 export default function Document() {
   return (
-    <Html lang="en">
+    <Html lang="FR">
       <Head />
       <body className="antialiased">
         <Main />

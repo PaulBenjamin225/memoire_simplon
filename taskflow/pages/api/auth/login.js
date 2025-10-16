@@ -49,14 +49,14 @@ export default async function handler(req, res) {
       return res.status(401).json({ message: 'Mot de passe incorrect' });
     }
 
-    // Étape 5.5 - Vérifier si le compte de l'utilisateur est actif
+    // Étape 6 - Vérifier si le compte de l'utilisateur est actif
     // Si la propriété `isActive` de l'utilisateur est `false`, on bloque la connexion.
     if (!user.isActive) {
       // 403 = Interdit (Forbidden). L'utilisateur est authentifié mais n'a pas la permission de se connecter.
       return res.status(403).json({ message: 'Votre compte a été désactivé. Veuillez contacter un administrateur.' });
     }
 
-    // Étape 6 : Créer le token JWT si l’utilisateur est authentifié
+    // Étape 7 : Créer le token JWT si l’utilisateur est authentifié
     // On signe un token contenant quelques infos (userId, rôle, nom)
     const token = jwt.sign(
       { 
@@ -68,15 +68,15 @@ export default async function handler(req, res) {
       { expiresIn: '1h' }  // durée de validité du token (ici 1 heure)
     );
 
-    // Étape 7 : Retourner le token au client
+    // Étape 8 : Retourner le token au client
     // Ce token servira à prouver l’identité de l’utilisateur pour les requêtes futures
     res.status(200).json({ token });
 
   } catch (error) {
     // Étape 8 : Gérer les erreurs inattendues
     res.status(500).json({ 
-      message: 'Something went wrong', // Message générique
-      error: error.message              // Détail de l'erreur (utile en développement)
+      message: 'une erreur est survenue', // Message générique
+      error: error.message              // Détail de l'erreur pour le debug
     });
   }
 }

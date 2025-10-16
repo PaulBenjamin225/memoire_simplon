@@ -13,10 +13,10 @@ import {
   ChatBubbleBottomCenterTextIcon, // Icône pour la messagerie ou les commentaires
   DevicePhoneMobileIcon,   // Icône pour symboliser l’accès mobile
   EnvelopeIcon             // Icône d’enveloppe utilisée dans la section contact
-  
-// Importation du hook useState de React
-// Il permet de gérer l’état local du composant (par exemple ici, l’ouverture ou fermeture du menu mobile)
 } from '@heroicons/react/24/outline';
+
+// Importation du hook useState de React
+// Il permet de gérer l’état local du composant (l’ouverture ou fermeture du menu mobile)
 import { useState } from 'react';
 
 // --- COMPOSANT PRINCIPAL DE LA PAGE D’ACCUEIL ---
@@ -144,7 +144,7 @@ export default function HomePage() {
               </div>
               <h3 className="text-xl font-bold mb-2">Gestion des utilisateurs et permissions</h3>
               <p className="text-slate-400">
-                Contrôlez les droits d'accès. Les managers créent et gèrent les comptes, les employés modifient leurs propres tâches.
+                Contrôlez les droits d'accès. Les managers créent et gèrent les comptes, les employés réalisent les tâches qui leur sont confiées.
               </p>
             </div>
 

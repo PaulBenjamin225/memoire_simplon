@@ -4,37 +4,33 @@ import jwt from 'jsonwebtoken'; // import de JWT : pour vérifier et décoder le
 // --- Initialisation du client Prisma ---
 const prisma = new PrismaClient();
 // --- Récupération de la clé secrète utilisée pour décoder les tokens JWT ---
-// Elle est stockée dans les variables d’environnement pour des raisons de sécurité
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET; // Elle est stockée dans les variables d’environnement pour des raisons de sécurité
 
 // --- Handler principal pour la route /api/tasks (GET uniquement) ---
 export default async function handler(req, res) {
   // Étape 1 : Vérification de la méthode HTTP
-  // Cette route n’accepte que les requêtes GET (lecture des tâches)
-  if (req.method !== 'GET') {
-    return res.status(405).json({ message: 'Method not allowed' });
+  
+  if (req.method !== 'GET') { // Cette route n’accepte que les requêtes GET (lecture des tâches)
+    return res.status(405).json({ message: 'Méthode non autorisée' });
   }
  // Étape 2 : Vérification du token d'authentification
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ message: 'Not authenticated' });
+  const authHeader = req.headers.authorization; // Récupération de l’en-tête d’autorisation
+  if (!authHeader || !authHeader.startsWith('Bearer ')) { 
+    return res.status(401).json({ message: 'Non authentifié' }); // Si l’en-tête est absent ou mal formé, on renvoie une erreur 401 
   }
-  // Extraction du token JWT
-  const token = authHeader.split(' ')[1];
+  const token = authHeader.split(' ')[1]; // Extraction du token JWT de l’en-tête
 
   try {
     // Étape 3 : Vérification et décodage du token JWT
     const decoded = jwt.verify(token, JWT_SECRET);
     
     // Étape 4 : Contrôle des permissions
-    // Seuls les utilisateurs ayant le rôle "MANAGER" peuvent accéder à cette route
     if (decoded.role !== 'MANAGER') {
-      return res.status(403).json({ message: 'Forbidden: Access denied' });
+      return res.status(403).json({ message: 'Interdit : Accès refusé' }); // Seuls les utilisateurs ayant le rôle "MANAGER" peuvent accéder à cette route
     }
 
     // Étape 5 : Récupération des tâches dans la base de données
-    // Prisma permet ici de récupérer toutes les tâches triées par date de création décroissante
-    const tasks = await prisma.task.findMany({
+    const tasks = await prisma.task.findMany({ // récupére toutes les tâches triées par date de création décroissante
       orderBy: { createdAt: 'desc' }, // Trie les tâches les plus récentes en premier
       include: {
         assignedTo: {
@@ -42,11 +38,8 @@ export default async function handler(req, res) {
         },
       },
     });
-
-    // Réponse réussie avec la liste des tâches
-    res.status(200).json(tasks);
+    res.status(200).json(tasks); // Réponse réussie avec la liste des tâches
   } catch (error) {
-    // En cas de token invalide ou expiré
-    res.status(401).json({ message: 'Invalid or expired token' });
+    res.status(401).json({ message: 'Token invalide ou expiré' }); // En cas de token invalide ou expiré
   }
 }
