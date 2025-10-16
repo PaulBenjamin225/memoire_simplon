@@ -36,6 +36,7 @@ export default async function handler(req, res) {
         name: true,  // Nom de l’utilisateur
         email: true, // Adresse email
         role: true,  // Rôle : "EMPLOYEE" ou "MANAGER"
+        isActive: true, // Statut : actif ou désactivé
       },
       orderBy: { 
         createdAt: 'desc', // Trie les résultats du plus récent au plus ancien
