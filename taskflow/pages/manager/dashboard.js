@@ -78,6 +78,8 @@ function ManagerDashboard() {
   const [tasks, setTasks] = useState([]);  // Liste des tâches
   const [users, setUsers] = useState([]); // Liste des utilisateurs
   const [isLoading, setIsLoading] = useState(true); // Indique si les données sont en cours de chargement
+  const [isDeleteUserConfirmOpen, setIsDeleteUserConfirmOpen] = useState(false); // Modal confirmation suppression utilisateur
+  const [userToDelete, setUserToDelete] = useState(null); // Utilisateur sélectionné pour la suppression
   
   // États pour les modals
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false); // Modal création de tâche
@@ -162,6 +164,29 @@ function ManagerDashboard() {
     } finally {
       setIsDeactivateConfirmOpen(false); // Ferme la modal de confirmation
       setUserToToggleStatus(null); // Réinitialise l'utilisateur sélectionné
+    }
+  };
+
+  // Fonctions pour la suppression d'utilisateur avec confirmation
+  const handleDeleteUserClick = (user) => {
+    setUserToDelete(user);
+    setIsDeleteUserConfirmOpen(true);
+  };
+  const confirmUserDeletion = async () => {
+    if (!userToDelete) return;
+    const token = localStorage.getItem('token');
+    try {
+      await axios.delete(`/api/users/${userToDelete.id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      // Mettre à jour l'interface en retirant l'utilisateur de la liste
+      setUsers(users.filter(u => u.id !== userToDelete.id));
+    } catch (error) {
+      console.error('Failed to delete user', error);
+      alert("La suppression de l'utilisateur a échoué.");
+    } finally {
+      setIsDeleteUserConfirmOpen(false);
+      setUserToDelete(null);
     }
   };
 
@@ -333,6 +358,12 @@ function ManagerDashboard() {
                           >
                             {u.isActive ? 'Désactiver' : 'Activer'}
                           </button>
+                          <button 
+                            onClick={() => handleDeleteUserClick(u)} 
+                            className="ml-4 text-red-500 hover:text-red-400"
+                          >
+                            Supprimer
+                          </button>
                         </td>
                       </tr>
                     ))}
@@ -355,6 +386,13 @@ function ManagerDashboard() {
         onConfirm={confirmToggleStatus}
         title={`${userToToggleStatus?.isActive ? 'Désactiver' : 'Activer'} le compte`}
         message={`Êtes-vous sûr de vouloir ${userToToggleStatus?.isActive ? 'Désactiver' : 'Activer'} le compte de ${userToToggleStatus?.name} ?`}
+      />
+       <ConfirmModal
+        isOpen={isDeleteUserConfirmOpen}
+        onClose={() => setIsDeleteUserConfirmOpen(false)}
+        onConfirm={confirmUserDeletion}
+        title="Confirmer la suppression DÉFINITIVE"
+        message={`Êtes-vous absolument sûr de vouloir supprimer ${userToDelete?.name} ? Toutes les tâches qui lui sont assignées seront également supprimées. Cette action est irréversible.`}
       />
     </PrivateRoute>
   );

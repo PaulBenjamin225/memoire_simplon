@@ -45,8 +45,6 @@ export default async function handler(req, res) {
     return res.status(400).json({ message: 'Name, email, and password are required.' });
   }
   
-  // --- AJOUT: Étape 3.5 - Validation de la complexité du mot de passe ---
-
   // --- Fonction de validation du mot de passe ---
   // Cette fonction centralise les règles de complexité pour les mots de passe.
   function validatePassword(password) {
@@ -64,6 +62,7 @@ export default async function handler(req, res) {
     }
     return null; // Si toutes les règles sont respectées, on renvoie null
   }
+  
     const passwordError = validatePassword(password);
     if (passwordError) {
       // Si le mot de passe n'est pas assez complexe, on renvoie une erreur 400 avec le message explicatif

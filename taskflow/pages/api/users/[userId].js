@@ -70,9 +70,38 @@ export default async function handler(req, res) {
       }
       res.status(500).json({ message: 'Échec de la mise à jour de l’utilisateur.', error: error.message });
     }
-  } else {
-    // Si la méthode n’est pas PATCH → on informe le client de la méthode autorisée
-    res.setHeader('Allow', ['PATCH']);
+  } 
+  
+  // --- CAS de Suppression d'un users ---
+  else if (req.method === 'DELETE') {
+    try {
+      // --- Étape 1 (DELETE) : Suppression des enregistrements dépendants ---
+      // Avant de supprimer un utilisateur, on doit supprimer toutes les tâches qui lui sont assignées
+      // pour éviter une erreur de contrainte de clé étrangère dans la base de données.
+      await prisma.task.deleteMany({
+        where: { assignedToId: userId },
+      });
+
+      // --- Étape 2 (DELETE) : Suppression de l'utilisateur ---
+      await prisma.user.delete({
+        where: { id: userId },
+      });
+      
+      // --- Étape 3 (DELETE) : Réponse de succès ---
+      res.status(204).end(); // 204 No Content : la suppression a réussi, pas de contenu à renvoyer.
+    } catch (error) {
+      // --- Étape 4 (DELETE) : Gestion des erreurs ---
+      // Si l'utilisateur à supprimer n'a pas été trouvé (code d'erreur Prisma)
+      if (error.code === 'P2025') {
+        return res.status(404).json({ message: 'Utilisateur non trouvé.' });
+      }
+      res.status(500).json({ message: 'Échec de la suppression de l’utilisateur.', error: error.message });
+    }
+
+  } 
+  else {
+    // Si la méthode n’est ni PATCH ni DELETE → on informe le client de la méthode autorisée
+    res.setHeader('Allow', ['PATCH', 'DELETE']);
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }
