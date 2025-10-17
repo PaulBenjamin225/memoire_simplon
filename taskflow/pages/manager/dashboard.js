@@ -217,14 +217,14 @@ function ManagerDashboard() {
               </h1>
               <div className="hidden md:flex items-center">
                 <Link href="/redirectToWp?destination=/" passHref>
-                  <a target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:text-cyan-400 mr-6 text-sm font-medium transition-colors">
+                  <a target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:text-cyan-400 mr-6 text-sm font-medium transition-colors cursor-pointer hover:scale-105">
                     TaskFlow Hub
                   </a>
                 </Link>
                 <span className="text-slate-300 mr-4">Bonjour, {user?.name}</span>
                 <button
                   onClick={logout}
-                  className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+                  className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors cursor-pointer hover:scale-105"
                 >
                   Déconnexion
                 </button>
@@ -239,14 +239,14 @@ function ManagerDashboard() {
           {isMenuOpen && (
             <div className="md:hidden bg-slate-800 pb-4 px-4 space-y-4">
               <Link href="/redirectToWp?destination=/" passHref>
-                <a target="_blank" rel="noopener noreferrer" className="block text-slate-300 hover:text-cyan-400 text-center py-2">
+                <a target="_blank" rel="noopener noreferrer" className="block text-slate-300 hover:text-cyan-400 text-center py-2 cursor-pointer hover:scale-105">
                   TaskFlow Hub
                 </a>
               </Link>
               <div className="text-slate-300 text-center py-2 border-t border-slate-700">Bonjour, {user?.name}</div>
               <button
                 onClick={logout}
-                className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+                className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors cursor-pointer hover:scale-105"
               >
                 Déconnexion
               </button>
@@ -283,14 +283,17 @@ function ManagerDashboard() {
                 <div className="flex items-center gap-4">
                   <div className="relative">
                     <FunnelIcon className="w-5 h-5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"/>
-                    <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="pl-10 pr-4 py-2 bg-slate-800 border border-slate-600 rounded-lg focus:ring-cyan-500 focus:border-cyan-500">
+                    <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="pl-10 pr-4 py-2 bg-slate-800 border border-slate-600 
+                    rounded-lg focus:ring-cyan-500 focus:border-cyan-500">
                       <option value="all">Tous les statuts</option>
                       <option value="TODO">À faire</option>
                       <option value="DONE">Terminé</option>
                     </select>
                   </div>
-                  <button onClick={() => setIsCreateModalOpen(true)} className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:opacity-90 text-white font-bold py-2 px-4 rounded-lg flex items-center shadow-sm">
-                    <PlusIcon className="w-5 h-5 mr-2" />
+                  <button onClick={() => setIsCreateModalOpen(true)} className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:opacity-90 
+                  text-white font-bold py-2 px-4 rounded-lg flex items-center shadow-sm 
+                  cursor-pointer hover:scale-105">
+                    <PlusIcon className="w-5 h-5 mr-2 " />
                     Créer une tâche
                   </button>
                 </div>
@@ -328,7 +331,9 @@ function ManagerDashboard() {
             <div>
               <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                 <h2 className="text-2xl font-semibold text-white">Liste des Utilisateurs</h2>
-                <button onClick={() => setIsAddUserModalOpen(true)} className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:opacity-90 text-white font-bold py-2 px-4 rounded-lg flex items-center shadow-sm">
+                <button onClick={() => setIsAddUserModalOpen(true)} className="bg-gradient-to-r from-cyan-500 to-blue-600 
+                hover:opacity-90 text-white font-bold py-2 px-4 rounded-lg flex items-center shadow-sm 
+                cursor-pointer hover:scale-105">
                   <PlusIcon className="w-5 h-5 mr-2" />
                   Ajouter un employé
                 </button>
@@ -349,18 +354,19 @@ function ManagerDashboard() {
                       <tr key={u.id} className={`hover:bg-slate-800 transition-opacity ${!u.isActive ? 'opacity-50' : ''}`}>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{u.name}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{u.email}</td>
-                        <td className="px-6 py-4 whitespace-nowrap"><span className={`px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full ${u.role === 'MANAGER' ? 'bg-purple-500/20 text-purple-300' : 'bg-blue-500/20 text-blue-300'}`}>{u.role === 'MANAGER' ? 'Manager' : 'Employé'}</span></td>
+                        <td className="px-6 py-4 whitespace-nowrap"><span className={`px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full 
+                          ${u.role === 'MANAGER' ? 'bg-purple-500/20 text-purple-300' : 'bg-blue-500/20 text-blue-300'}`}>{u.role === 'MANAGER' ? 'Manager' : 'Employé'}</span></td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <button onClick={() => handleEditUserClick(u)} className="text-cyan-400 hover:text-cyan-300">Modifier</button>
+                          <button onClick={() => handleEditUserClick(u)} className="text-cyan-400 hover:text-cyan-300 cursor-pointer hover:scale-105">Modifier</button>
                           <button 
                             onClick={() => handleToggleStatusClick(u)} 
-                            className={`ml-4 ${u.isActive ? 'text-red-500 hover:text-red-400' : 'text-green-500 hover:text-green-400'}`}
+                            className={`ml-4 ${u.isActive ? 'text-red-500 hover:text-red-400' : 'text-green-500 hover:text-green-400 cursor-pointer hover:scale-105'}`}
                           >
                             {u.isActive ? 'Désactiver' : 'Activer'}
                           </button>
                           <button 
                             onClick={() => handleDeleteUserClick(u)} 
-                            className="ml-4 text-red-500 hover:text-red-400"
+                            className="ml-4 text-red-500 hover:text-red-400 cursor-pointer hover:scale-105"
                           >
                             Supprimer
                           </button>

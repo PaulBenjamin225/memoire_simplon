@@ -71,7 +71,7 @@ export default function LoginPage() {
                 type="submit"
                 className="w-full py-3 px-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 
                 hover:to-blue-700 text-white font-bold text-lg rounded-lg shadow-lg focus:outline-none focus:ring-2 
-                focus:ring-offset-2 focus:ring-cyan-500 focus:ring-offset-slate-800 transition-all duration-300"
+                focus:ring-offset-2 focus:ring-cyan-500 focus:ring-offset-slate-800 transition-all duration-300 cursor-pointer hover:scale-105"
               >
                 Se connecter
               </button>

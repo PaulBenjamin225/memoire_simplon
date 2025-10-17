@@ -47,7 +47,7 @@ const TaskItem = ({ task, onStatusChange }) => { // onStatusChange est une fonct
                     type="checkbox"
                     checked={task.status === 'DONE'}
                     onChange={handleCheckboxChange}
-                    className="h-6 w-6 rounded border-slate-600 bg-slate-700 text-cyan-500 focus:ring-cyan-500 cursor-pointer flex-shrink-0 mt-1"
+                    className="h-6 w-6 rounded border-slate-600 bg-slate-700 text-cyan-500 focus:ring-cyan-500 cursor-pointer hover:scale-105 flex-shrink-0 mt-1"
                 />
                 <div className="ml-4 min-w-0">
                     <p className={`font-semibold text-white ${task.status === 'DONE' ? 'line-through text-slate-500' : ''}`}>{task.title}</p>
@@ -147,14 +147,14 @@ function EmployeeDashboard() {
 
               <div className="hidden md:flex items-center">
                 <Link href="/redirectToWp?destination=/" passHref>
-                  <a target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:text-cyan-400 mr-6 text-sm font-medium transition-colors">
+                  <a target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:text-cyan-400 mr-6 text-sm font-medium transition-colors cursor-pointer hover:scale-105">
                     TaskFlow Hub
                   </a>
                 </Link>
                 <span className="text-slate-300 mr-4">Bonjour, {user?.name}</span>
                 <button
                   onClick={logout}
-                  className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+                  className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors cursor-pointer hover:scale-105"
                 >
                   Déconnexion
                 </button>
@@ -171,14 +171,14 @@ function EmployeeDashboard() {
           {isMenuOpen && (
             <div className="md:hidden bg-slate-800 pb-4 px-4 space-y-4">
               <Link href="/redirectToWp?destination=/" passHref>
-                <a target="_blank" rel="noopener noreferrer" className="block text-slate-300 hover:text-cyan-400 text-center py-2">
+                <a target="_blank" rel="noopener noreferrer" className="block text-slate-300 hover:text-cyan-400 text-center py-2 cursor-pointer hover:scale-105">
                   TaskFlow Hub
                 </a>
               </Link>
               <div className="text-slate-300 text-center py-2 border-t border-slate-700">Bonjour, {user?.name}</div>
               <button
                 onClick={logout}
-                className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+                className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors cursor-pointer hover:scale-105"
               >
                 Déconnexion
               </button>

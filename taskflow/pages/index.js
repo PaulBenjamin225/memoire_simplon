@@ -40,10 +40,10 @@ export default function HomePage() {
 
           {/* Menu pour grands écrans */}
           <div className="hidden md:flex items-center space-x-6">
-            <Link href="#features" className="hover:text-cyan-400 transition-colors">Fonctionnalités</Link>
-            <Link href="#pricing" className="hover:text-cyan-400 transition-colors">Tarifs</Link>
-            <Link href="#contact" className="hover:text-cyan-400 transition-colors">Contact</Link>
-            <Link href="/login" className="hover:text-cyan-400 transition-colors">Se connecter</Link>
+            <Link href="#features" className="hover:text-cyan-400 transition-colors cursor-pointer hover:scale-105">Fonctionnalités</Link>
+            <Link href="#pricing" className="hover:text-cyan-400 transition-colors cursor-pointer hover:scale-105">Tarifs</Link>
+            <Link href="#contact" className="hover:text-cyan-400 transition-colors cursor-pointer hover:scale-105">Contact</Link>
+            <Link href="/login" className="hover:text-cyan-400 transition-colors cursor-pointer hover:scale-105">Se connecter</Link>
           </div>
 
           {/* Bouton du menu mobile */}
@@ -57,11 +57,11 @@ export default function HomePage() {
         {/* Menu mobile dépliant */}
         {isMenuOpen && (
           <div className="md:hidden bg-slate-800 flex flex-col items-center space-y-4 py-4">
-            <Link href="#features" className="hover:text-cyan-400">Fonctionnalités</Link>
-            <Link href="#pricing" className="hover:text-cyan-400">Tarifs</Link>
-            <Link href="#contact" className="hover:text-cyan-400">Contact</Link>
+            <Link href="#features" className="hover:text-cyan-400 cursor-pointer hover:scale-105">Fonctionnalités</Link>
+            <Link href="#pricing" className="hover:text-cyan-400 cursor-pointer hover:scale-105">Tarifs</Link>
+            <Link href="#contact" className="hover:text-cyan-400 cursor-pointer hover:scale-105">Contact</Link>
             <Link href="/login" className="hover:text-cyan-400 pt-4 border-t 
-            border-slate-700 w-full text-center">Se connecter</Link>
+            border-slate-700 w-full text-center cursor-pointer hover:scale-105">Se connecter</Link>
           </div>
         )}
       </header>
@@ -82,11 +82,11 @@ export default function HomePage() {
           </p>
           <div className="mt-10 flex justify-center items-center space-x-4">
             <Link href="/login" className="bg-gradient-to-r from-cyan-500 to-blue-600 
-            hover:opacity-90 text-white font-bold py-3 px-8 rounded-lg text-lg transition-opacity flex items-center">
+            hover:opacity-90 text-white font-bold py-3 px-8 rounded-lg text-lg transition-opacity flex items-center cursor-pointer hover:scale-105">
               Commencer <ArrowRightIcon className="w-5 h-5 ml-2" />
             </Link>
             <Link href="#features" className="border border-slate-600 hover:bg-slate-800 
-            text-slate-200 font-bold py-3 px-8 rounded-lg text-lg transition-colors">
+            text-slate-200 font-bold py-3 px-8 rounded-lg text-lg transition-colors cursor-pointer hover:scale-105">
               En savoir plus
             </Link>
           </div>
@@ -237,7 +237,7 @@ export default function HomePage() {
               {/* Le lien cliquable pour envoyer un email */}
               <a 
                 href="mailto:paulbenjaminahoutou@gmail.com" 
-                className="inline-flex items-center justify-center gap-x-3 bg-slate-800 border border-slate-700 hover:border-cyan-500 hover:text-cyan-400 transition-all duration-300 py-4 px-8 rounded-lg text-lg text-slate-200"
+                className="inline-flex items-center justify-center gap-x-3 bg-slate-800 border border-slate-700 hover:border-cyan-500 hover:text-cyan-400 transition-all duration-300 py-4 px-8 rounded-lg text-lg text-slate-200 cursor-pointer hover:scale-105"
               >
                 <EnvelopeIcon className="w-6 h-6" />
                 <span>taskflow@gmail.com</span>
