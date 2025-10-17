@@ -284,7 +284,7 @@ function ManagerDashboard() {
                   <div className="relative">
                     <FunnelIcon className="w-5 h-5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"/>
                     <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="pl-10 pr-4 py-2 bg-slate-800 border border-slate-600 
-                    rounded-lg focus:ring-cyan-500 focus:border-cyan-500">
+                    rounded-lg focus:ring-cyan-500 focus:border-cyan-500 cursor-pointer hover:scale-105">
                       <option value="all">Tous les statuts</option>
                       <option value="TODO">À faire</option>
                       <option value="DONE">Terminé</option>
