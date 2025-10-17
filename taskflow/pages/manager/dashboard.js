@@ -53,8 +53,8 @@ const TaskRow = ({ task, onEdit, onDelete }) => {
         </span>
       </td>
       <td className="px-6 py-4 whitespace-nowrap align-top text-sm font-medium">
-        <button onClick={onEdit} className="text-cyan-400 hover:text-cyan-300">Modifier</button>
-        <button onClick={onDelete} className="text-red-500 hover:text-red-400 ml-4">Supprimer</button>
+        <button onClick={onEdit} className="text-cyan-400 hover:text-cyan-300 cursor-pointer hover:scale-105">Modifier</button>
+        <button onClick={onDelete} className="text-red-500 hover:text-red-400 ml-4 cursor-pointer hover:scale-105">Supprimer</button>
       </td>
     </tr>
   );
@@ -264,12 +264,12 @@ function ManagerDashboard() {
           <div className="mb-6 border-b border-slate-700">
             <div className="flex space-x-8">
               <button onClick={() => setActiveTab('tasks')} 
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors 
-              ${activeTab === 'tasks' ? 'border-cyan-400 text-cyan-400' : 'border-transparent text-slate-400 hover:border-slate-500 hover:text-slate-300'}`}>
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors cursor-pointer hover:scale-105
+              ${activeTab === 'tasks' ? 'border-cyan-400 text-cyan-400' : 'border-transparent text-slate-400 hover:border-slate-500 hover:text-slate-300 '}`}>
                 GESTION DES TÂCHES
               </button>
               <button onClick={() => setActiveTab('users')} 
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors 
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors cursor-pointer hover:scale-105
               ${activeTab === 'users' ? 'border-cyan-400 text-cyan-400' : 'border-transparent text-slate-400 hover:border-slate-500 hover:text-slate-300'}`}>
                 GESTION DES EMPLOYÉS
               </button>
@@ -360,7 +360,7 @@ function ManagerDashboard() {
                           <button onClick={() => handleEditUserClick(u)} className="text-cyan-400 hover:text-cyan-300 cursor-pointer hover:scale-105">Modifier</button>
                           <button 
                             onClick={() => handleToggleStatusClick(u)} 
-                            className={`ml-4 ${u.isActive ? 'text-red-500 hover:text-red-400' : 'text-green-500 hover:text-green-400 cursor-pointer hover:scale-105'}`}
+                            className={`ml-4 ${u.isActive ? 'text-red-500 hover:text-red-400' : 'text-green-500 hover:text-green-400'} cursor-pointer hover:scale-105`}
                           >
                             {u.isActive ? 'Désactiver' : 'Activer'}
                           </button>
