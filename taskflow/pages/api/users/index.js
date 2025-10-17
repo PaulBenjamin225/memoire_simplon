@@ -7,6 +7,8 @@ const prisma = new PrismaClient();
 
 const JWT_SECRET = process.env.JWT_SECRET; // Clé secrète utilisée pour signer et vérifier les tokens JWT
 
+
+
 // Cette route permet à un MANAGER de créer un nouvel utilisateur (par défaut un employé)
 export default async function handler(req, res) {
 
@@ -42,6 +44,32 @@ export default async function handler(req, res) {
   if (!name || !email || !password) {
     return res.status(400).json({ message: 'Name, email, and password are required.' });
   }
+  
+  // --- AJOUT: Étape 3.5 - Validation de la complexité du mot de passe ---
+
+  // --- Fonction de validation du mot de passe ---
+  // Cette fonction centralise les règles de complexité pour les mots de passe.
+  function validatePassword(password) {
+    if (password.length < 8) {
+      return "Le mot de passe doit contenir au moins 8 caractères."; // Longueur minimale
+    }
+    if (!/[a-z]/.test(password)) {
+      return "Le mot de passe doit contenir au moins une lettre minuscule."; // Lettre minuscule
+    }
+    if (!/[A-Z]/.test(password)) {
+      return "Le mot de passe doit contenir au moins une lettre majuscule."; // Lettre majuscule
+    }
+    if (!/[0-9]/.test(password)) {
+      return "Le mot de passe doit contenir au moins un chiffre."; // Chiffre
+    }
+    return null; // Si toutes les règles sont respectées, on renvoie null
+  }
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      // Si le mot de passe n'est pas assez complexe, on renvoie une erreur 400 avec le message explicatif
+      return res.status(400).json({ message: passwordError });
+    }
+
 
   // --- Étape 4 : Création du nouvel utilisateur ---
   try {
@@ -55,6 +83,7 @@ export default async function handler(req, res) {
         email,
         password: hashedPassword,
         role: 'EMPLOYEE', // le role par defaut des utilisateurs créés est EMPLOYEE
+        isActive: true, // On s'assure que le nouvel utilisateur est actif par défaut
       },
 
       // Retour d’une réponse de succès avec le nouvel utilisateur créé
@@ -63,6 +92,7 @@ export default async function handler(req, res) {
         name: true,
         email: true,
         role: true,
+        isActive: true, // On inclut le statut dans la réponse
       }
     });
 

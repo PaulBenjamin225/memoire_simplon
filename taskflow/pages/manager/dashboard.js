@@ -238,10 +238,14 @@ function ManagerDashboard() {
 
           <div className="mb-6 border-b border-slate-700">
             <div className="flex space-x-8">
-              <button onClick={() => setActiveTab('tasks')} className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'tasks' ? 'border-cyan-400 text-cyan-400' : 'border-transparent text-slate-400 hover:border-slate-500 hover:text-slate-300'}`}>
+              <button onClick={() => setActiveTab('tasks')} 
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors 
+              ${activeTab === 'tasks' ? 'border-cyan-400 text-cyan-400' : 'border-transparent text-slate-400 hover:border-slate-500 hover:text-slate-300'}`}>
                 GESTION DES TÂCHES
               </button>
-              <button onClick={() => setActiveTab('users')} className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'users' ? 'border-cyan-400 text-cyan-400' : 'border-transparent text-slate-400 hover:border-slate-500 hover:text-slate-300'}`}>
+              <button onClick={() => setActiveTab('users')} 
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors 
+              ${activeTab === 'users' ? 'border-cyan-400 text-cyan-400' : 'border-transparent text-slate-400 hover:border-slate-500 hover:text-slate-300'}`}>
                 GESTION DES EMPLOYÉS
               </button>
             </div>
