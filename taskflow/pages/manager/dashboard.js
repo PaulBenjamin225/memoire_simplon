@@ -48,7 +48,8 @@ const TaskRow = ({ task, onEdit, onDelete }) => {
       <td className="px-6 py-4 whitespace-nowrap align-top text-sm text-slate-300">{task.assignedTo.name}</td>
       <td className="px-6 py-4 whitespace-nowrap align-top text-sm text-slate-300">{new Date(task.deadline).toLocaleDateString('fr-FR')}</td>
       <td className="px-6 py-4 whitespace-nowrap align-top">
-        <span className={`px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full ${task.status === 'DONE' ? 'bg-green-500/20 text-green-300' : 'bg-yellow-500/20 text-yellow-300'}`}>
+        <span className={`px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full ${task.status === 'DONE' ? 'bg-green-500/20 text-green-300' : 
+          'bg-yellow-500/20 text-yellow-300'}`}>
           {task.status === 'DONE' ? 'Terminé' : 'À faire'}
         </span>
       </td>
@@ -156,7 +157,8 @@ function ManagerDashboard() {
     const token = localStorage.getItem('token'); // Récupère le token JWT depuis le stockage local
     try {
       const newStatus = !userToToggleStatus.isActive; // Inverse le statut actuel
-      const response = await axios.patch(`/api/users/${userToToggleStatus.id}`, { isActive: newStatus }, { headers: { Authorization: `Bearer ${token}` } }); // Envoie une requête PATCH pour mettre à jour le statut
+      const response = await axios.patch(`/api/users/${userToToggleStatus.id}`, 
+        { isActive: newStatus }, { headers: { Authorization: `Bearer ${token}` } }); // Envoie une requête PATCH pour mettre à jour le statut
       handleUserUpdated(response.data); // Met à jour l'utilisateur dans la liste
     } catch (error) {
       console.error('Échec de basculer le statut utilisateur', error); 
@@ -168,25 +170,25 @@ function ManagerDashboard() {
   };
 
   // Fonctions pour la suppression d'utilisateur avec confirmation
-  const handleDeleteUserClick = (user) => {
-    setUserToDelete(user);
-    setIsDeleteUserConfirmOpen(true);
+  const handleDeleteUserClick = (user) => { // Ouvre la modal de confirmation pour supprimer un utilisateur
+    setUserToDelete(user); //   Définit l'utilisateur sélectionné
+    setIsDeleteUserConfirmOpen(true); // Ouvre la modal de confirmation
   };
-  const confirmUserDeletion = async () => {
-    if (!userToDelete) return;
-    const token = localStorage.getItem('token');
+  const confirmUserDeletion = async () => { // Supprime un utilisateur
+    if (!userToDelete) return; // Si aucun utilisateur sélectionné, ne fait rien
+    const token = localStorage.getItem('token'); // Récupère le token JWT depuis le stockage local
     try {
-      await axios.delete(`/api/users/${userToDelete.id}`, {
-        headers: { Authorization: `Bearer ${token}` }
+      await axios.delete(`/api/users/${userToDelete.id}`, { // Envoie une requête DELETE pour supprimer l'utilisateur
+        headers: { Authorization: `Bearer ${token}` } // Ajoute le token dans les en-têtes
       });
       // Mettre à jour l'interface en retirant l'utilisateur de la liste
-      setUsers(users.filter(u => u.id !== userToDelete.id));
+      setUsers(users.filter(u => u.id !== userToDelete.id)); // Retire l'utilisateur supprimé de la liste
     } catch (error) {
-      console.error('Failed to delete user', error);
-      alert("La suppression de l'utilisateur a échoué.");
+      console.error('Failed to delete user', error); // Log l'erreur en cas d'échec
+      alert("La suppression de l'utilisateur a échoué."); // Affiche une alerte en cas d'erreur
     } finally {
-      setIsDeleteUserConfirmOpen(false);
-      setUserToDelete(null);
+      setIsDeleteUserConfirmOpen(false); // Ferme la modal de confirmation
+      setUserToDelete(null); // Réinitialise l'utilisateur sélectionné
     }
   };
 
@@ -217,7 +219,8 @@ function ManagerDashboard() {
               </h1>
               <div className="hidden md:flex items-center">
                 <Link href="/redirectToWp?destination=/" passHref>
-                  <a target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:text-cyan-400 mr-6 text-sm font-medium transition-colors cursor-pointer hover:scale-105">
+                  <a target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:text-cyan-400 mr-6 text-sm 
+                  font-medium transition-colors cursor-pointer hover:scale-105">
                     TaskFlow Hub
                   </a>
                 </Link>
